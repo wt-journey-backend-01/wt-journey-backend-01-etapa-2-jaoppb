@@ -77,9 +77,7 @@ function deleteAgent(req: Request, res: Response) {
 		throw new InvalidIDError('agent', agentId);
 	}
 
-	try {
-		agentRepository.deleteAgent(agentId);
-	} catch {}
+	agentRepository.deleteAgent(agentId);
 	res.status(204).send();
 }
 

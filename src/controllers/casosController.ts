@@ -86,9 +86,7 @@ function deleteCase(req: Request, res: Response) {
 		throw new InvalidIDError('case', caseId);
 	}
 
-	try {
-		casesRepository.deleteCase(caseId);
-	} catch {}
+	casesRepository.deleteCase(caseId);
 	res.status(204).send();
 }
 
