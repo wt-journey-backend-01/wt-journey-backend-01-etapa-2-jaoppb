@@ -8,7 +8,7 @@ const isWatchMode = process.argv.includes('--watch');
 
 const buildOptions = {
 	entryPoints: ['./src/server.ts'],
-	outdir: 'dist',
+	outdir: '.',
 	bundle: true,
 	minify: true,
 	platform: 'node',

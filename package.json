@@ -2,10 +2,10 @@
 	"name": "wt-journey-backend-01-etapa-2-jaoppb",
 	"version": "1.0.0",
 	"description": "[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/pktpEP6V) # Etapa 2: API para o Departamento de Polícia",
-	"main": "dist/server.js",
+	"main": "server.js",
 	"scripts": {
 		"start": "node dist/server.js",
-		"clean": "rm -rf dist/*",
+		"clean": "rm -rf server.js dist/*",
 		"build": "node build.cjs",
 		"build:watch": "node build.cjs --watch",
 		"start:dev": "nodemon --watch dist --exec 'node dist/server.js'"
