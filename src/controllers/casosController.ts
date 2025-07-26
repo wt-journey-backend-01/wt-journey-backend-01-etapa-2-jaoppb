@@ -20,10 +20,18 @@ function createCase(req: Request, res: Response) {
 	res.status(201).json(createdCase);
 }
 
-function updateCase(req: Request, res: Response) {
+function overwriteCase(req: Request, res: Response) {
 	const caseId = req.params.id;
 	const existingCase = casesRepository.findById(caseId);
 	const updatedData = CaseSchema.omit({ id: true }).parse(req.body);
+	const updatedCase = casesRepository.updateCase(existingCase, updatedData);
+	res.json(updatedCase);
+}
+
+function updateCase(req: Request, res: Response) {
+	const caseId = req.params.id;
+	const existingCase = casesRepository.findById(caseId);
+	const updatedData = CaseSchema.omit({ id: true }).partial().parse(req.body);
 	const updatedCase = casesRepository.updateCase(existingCase, updatedData);
 	res.json(updatedCase);
 }
@@ -32,5 +40,6 @@ export default {
 	getAllCases,
 	getCaseById,
 	createCase,
+	overwriteCase,
 	updateCase,
 };

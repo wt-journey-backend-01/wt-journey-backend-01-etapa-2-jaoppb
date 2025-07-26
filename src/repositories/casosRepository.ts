@@ -45,6 +45,11 @@ function createCase(newCase: Case): Case {
 }
 
 function updateCase(case_: Case, updatedCase: Partial<Case>): Case {
+	if (updatedCase.agente_id) {
+		// Throw an error if the agent does not exist
+		agentsRepository.findById(updatedCase.agente_id);
+	}
+
 	Object.assign(case_, updatedCase);
 	return case_;
 }
