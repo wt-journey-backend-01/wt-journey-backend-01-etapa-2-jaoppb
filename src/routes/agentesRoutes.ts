@@ -1,11 +1,6 @@
 import express from 'express';
-import agentsController from '../controllers/agentesController';
-import {
-	createDocument,
-	ZodOpenApiOperationObject,
-	ZodOpenApiPathItemObject,
-	ZodOpenApiPathsObject,
-} from 'zod-openapi';
+import agentsController, { sortFilter } from '../controllers/agentesController';
+import { ZodOpenApiOperationObject, ZodOpenApiPathsObject } from 'zod-openapi';
 import z from 'zod';
 import AgentSchema from '../models/agent';
 
@@ -16,6 +11,18 @@ const getAllApi: ZodOpenApiOperationObject = {
 	responses: {
 		200: {
 			description: 'List of agents',
+			parameters: [
+				{
+					name: 'cargo',
+					in: 'query',
+					schema: AgentSchema.shape.cargo,
+				},
+				{
+					name: 'sort',
+					in: 'query',
+					schema: sortFilter,
+				},
+			],
 			content: {
 				'application/json': {
 					schema: z.array(AgentSchema),

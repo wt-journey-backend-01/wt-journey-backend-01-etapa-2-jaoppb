@@ -12,6 +12,18 @@ const getAllApi: ZodOpenApiOperationObject = {
 	responses: {
 		200: {
 			description: 'List of cases',
+			parameters: [
+				{
+					name: 'status',
+					in: 'query',
+					schema: CaseSchema.shape.status,
+				},
+				{
+					name: 'agente_id',
+					in: 'query',
+					schema: AgentSchema.shape.id,
+				},
+			],
 			content: {
 				'application/json': {
 					schema: z.array(CaseSchema),

@@ -4,6 +4,8 @@ import AgentSchema from '../models/agent';
 import z from 'zod';
 import { v4 as uuid } from 'uuid';
 
+export const sortFilter = z.enum(['dataDeIncorporacao', '-dataDeIncorporacao']);
+
 function getAllAgents(req: Request, res: Response) {
 	const filters = req.query as {
 		cargo?: string;
@@ -12,10 +14,7 @@ function getAllAgents(req: Request, res: Response) {
 
 	if (filters.cargo !== undefined)
 		AgentSchema.shape.cargo.parse(filters.cargo);
-	if (filters.sort !== undefined)
-		z.enum(['dataDeIncorporacao', '-dataDeIncorporacao']).parse(
-			filters.sort,
-		);
+	if (filters.sort !== undefined) sortFilter.parse(filters.sort);
 
 	const agents = agentRepository.findAll({
 		cargo: filters.cargo,
