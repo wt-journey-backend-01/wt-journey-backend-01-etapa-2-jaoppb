@@ -7,13 +7,13 @@ const agents: Agent[] = [
 	{
 		id: uuid(),
 		nome: 'Rommel Carneiro',
-		dataDeIncorporacao: '1992/10/04',
+		dataDeIncorporacao: '1992-10-04',
 		cargo: 'Investigador',
 	},
 	{
 		id: uuid(),
 		nome: 'Ana Paula Silva',
-		dataDeIncorporacao: '1995/05/15',
+		dataDeIncorporacao: '1995-05-15',
 		cargo: 'Delegado',
 	},
 ];
