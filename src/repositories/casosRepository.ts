@@ -44,8 +44,14 @@ function createCase(newCase: Case): Case {
 	return newCase;
 }
 
+function updateCase(case_: Case, updatedCase: Partial<Case>): Case {
+	Object.assign(case_, updatedCase);
+	return case_;
+}
+
 export default {
 	findAll,
 	findById,
 	createCase,
+	updateCase,
 };
