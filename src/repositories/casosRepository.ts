@@ -33,8 +33,12 @@ function findById(id: string): Case {
 }
 
 function createCase(newCase: Case): Case {
-	if (findById(newCase.id)) {
-		throw new DuplicateIDError(newCase.id);
+	try {
+		findById(newCase.id);
+	} catch (error) {
+		if (error instanceof NotFoundError)
+			throw new DuplicateIDError(newCase.id);
+		else throw error;
 	}
 
 	// Throw an error if the agent does not exist
