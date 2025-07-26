@@ -38,6 +38,15 @@ function findAll(filters?: caseFilters): Case[] {
 	return casesList;
 }
 
+function findAllWithText(text: string): Case[] {
+	const normalized = text.toLowerCase().normalize();
+	return cases.filter(
+		(c) =>
+			c.titulo.toLowerCase().normalize().includes(normalized) ||
+			c.descricao.toLowerCase().normalize().includes(normalized),
+	);
+}
+
 function findById(id: string): Case {
 	const foundCase = cases.find((c) => c.id === id);
 	if (foundCase === undefined) throw new NotFoundError('Case', id);
@@ -78,6 +87,7 @@ function deleteCase(id: string): void {
 
 export default {
 	findAll,
+	findAllWithText,
 	findById,
 	createCase,
 	updateCase,

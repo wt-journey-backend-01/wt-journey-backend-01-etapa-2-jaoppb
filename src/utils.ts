@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ZodError } from 'zod';
 import { DuplicateIDError } from './errors/duplicateID';
 import { NotFoundError } from './errors/notFound';
+import { RequiredParamError } from './errors/requiredParam';
 
 export function errorHandler(
 	err: Error,
@@ -23,6 +24,10 @@ export function errorHandler(
 			});
 		case err instanceof NotFoundError:
 			return res.status(404).json({
+				message: err.message,
+			});
+		case err instanceof RequiredParamError:
+			return res.status(400).json({
 				message: err.message,
 			});
 		default:

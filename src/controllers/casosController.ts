@@ -3,6 +3,7 @@ import casesRepository from '../repositories/casosRepository';
 import CaseSchema from '../models/case';
 import { v4 as uuid } from 'uuid';
 import agentsRepository from '../repositories/agentesRepository';
+import { RequiredParamError } from '../errors/requiredParam';
 
 function getAllCases(req: Request, res: Response) {
 	const filters = req.query as { status?: string; agente_id?: string };
@@ -16,6 +17,14 @@ function getAllCases(req: Request, res: Response) {
 	}
 
 	const cases = casesRepository.findAll(filters);
+	res.json(cases);
+}
+
+function getAllCasesWithText(req: Request, res: Response) {
+	const text = req.query.q as string | undefined;
+	if (!text) throw new RequiredParamError('q');
+
+	const cases = casesRepository.findAllWithText(text);
 	res.json(cases);
 }
 
@@ -68,6 +77,7 @@ function deleteCase(req: Request, res: Response) {
 
 export default {
 	getAllCases,
+	getAllCasesWithText,
 	getCaseById,
 	getAgentByCaseId,
 	createCase,
