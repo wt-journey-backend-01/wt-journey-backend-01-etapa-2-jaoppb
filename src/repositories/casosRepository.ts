@@ -62,10 +62,9 @@ function createCase(newCase: Omit<Case, 'id'>): Case {
 
 	try {
 		findById(caseWithId.id);
+		throw new DuplicateIDError(caseWithId.id);
 	} catch (error) {
-		if (error instanceof NotFoundError)
-			throw new DuplicateIDError(caseWithId.id);
-		else throw error;
+		if (!(error instanceof NotFoundError)) throw error;
 	}
 
 	// Throw an error if the agent does not exist

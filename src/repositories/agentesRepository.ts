@@ -61,10 +61,9 @@ function createAgent(newAgent: Omit<Agent, 'id'>): Agent {
 
 	try {
 		findById(agentWithId.id);
+		throw new DuplicateIDError(agentWithId.id);
 	} catch (error) {
-		if (error instanceof NotFoundError)
-			throw new DuplicateIDError(agentWithId.id);
-		else throw error;
+		if (!(error instanceof NotFoundError)) throw error;
 	}
 
 	agents.push(agentWithId);
