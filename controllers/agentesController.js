@@ -42,10 +42,7 @@ function getAllAgents(req, res) {
   if (filters.cargo !== void 0)
     import_agent.default.shape.cargo.parse(filters.cargo);
   if (filters.sort !== void 0) sortFilter.parse(filters.sort);
-  const agents = import_agentesRepository.default.findAll({
-    cargo: filters.cargo,
-    sort: filters.sort
-  });
+  const agents = import_agentesRepository.default.findAll(filters);
   res.json(agents);
 }
 function getAgentById(req, res) {

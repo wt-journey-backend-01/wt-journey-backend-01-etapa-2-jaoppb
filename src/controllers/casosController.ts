@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import casesRepository from '../repositories/casosRepository';
+import casesRepository, { CaseFilters } from '../repositories/casosRepository';
 import CaseSchema from '../models/case';
 import agentsRepository from '../repositories/agentesRepository';
 import { RequiredParamError } from '../errors/requiredParam';
@@ -7,15 +7,13 @@ import z from 'zod';
 import { InvalidIDError } from '../errors/invalidID';
 
 function getAllCases(req: Request, res: Response) {
-	const filters = req.query as { status?: string; agente_id?: string };
+	const filters = req.query as CaseFilters;
 
-	if (filters.status) {
+	if (filters.status !== undefined)
 		CaseSchema.shape.status.parse(filters.status);
-	}
 
-	if (filters.agente_id) {
+	if (filters.agente_id !== undefined)
 		CaseSchema.shape.agente_id.parse(filters.agente_id);
-	}
 
 	const cases = casesRepository.findAll(filters);
 	res.json(cases);

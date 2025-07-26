@@ -23,12 +23,12 @@ const cases: Case[] = [
 	},
 ];
 
-type caseFilters = {
+export type CaseFilters = {
 	status?: string;
 	agente_id?: string;
 };
 
-function findAll(filters?: caseFilters): Case[] {
+function findAll(filters?: CaseFilters): Case[] {
 	let casesList = cases;
 	if (filters?.status) {
 		casesList = casesList.filter((c) => c.status === filters.status);

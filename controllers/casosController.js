@@ -39,12 +39,10 @@ var import_zod = __toESM(require("zod"));
 var import_invalidID = require("../errors/invalidID");
 function getAllCases(req, res) {
   const filters = req.query;
-  if (filters.status) {
+  if (filters.status !== void 0)
     import_case.default.shape.status.parse(filters.status);
-  }
-  if (filters.agente_id) {
+  if (filters.agente_id !== void 0)
     import_case.default.shape.agente_id.parse(filters.agente_id);
-  }
   const cases = import_casosRepository.default.findAll(filters);
   res.json(cases);
 }

@@ -19,7 +19,7 @@ const agents: Agent[] = [
 	},
 ];
 
-type AgentFilters = {
+export type AgentFilters = {
 	cargo?: string;
 	sort?: 'dataDeIncorporacao' | '-dataDeIncorporacao';
 };

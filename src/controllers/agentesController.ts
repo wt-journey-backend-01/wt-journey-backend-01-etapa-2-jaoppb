@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
-import agentRepository from '../repositories/agentesRepository';
+import agentRepository, {
+	AgentFilters,
+} from '../repositories/agentesRepository';
 import AgentSchema from '../models/agent';
 import z from 'zod';
 import { InvalidIDError } from '../errors/invalidID';
@@ -7,19 +9,13 @@ import { InvalidIDError } from '../errors/invalidID';
 export const sortFilter = z.enum(['dataDeIncorporacao', '-dataDeIncorporacao']);
 
 function getAllAgents(req: Request, res: Response) {
-	const filters = req.query as {
-		cargo?: string;
-		sort?: 'dataDeIncorporacao' | '-dataDeIncorporacao';
-	};
+	const filters = req.query as AgentFilters;
 
 	if (filters.cargo !== undefined)
 		AgentSchema.shape.cargo.parse(filters.cargo);
 	if (filters.sort !== undefined) sortFilter.parse(filters.sort);
 
-	const agents = agentRepository.findAll({
-		cargo: filters.cargo,
-		sort: filters.sort,
-	});
+	const agents = agentRepository.findAll(filters);
 	res.json(agents);
 }
 
