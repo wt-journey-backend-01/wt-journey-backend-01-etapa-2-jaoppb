@@ -1,6 +1,6 @@
 import { createDocument } from 'zod-openapi';
-import { agentApi } from './routes/agentesRoutes';
-import { caseApi } from './routes/casosRoutes';
+import { agentApi } from '../routes/agentesRoutes';
+import { caseApi } from '../routes/casosRoutes';
 
 export const swaggerDocument = createDocument({
 	openapi: '3.1.1',

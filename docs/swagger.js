@@ -22,8 +22,8 @@ __export(swagger_exports, {
 });
 module.exports = __toCommonJS(swagger_exports);
 var import_zod_openapi = require("zod-openapi");
-var import_agentesRoutes = require("./routes/agentesRoutes");
-var import_casosRoutes = require("./routes/casosRoutes");
+var import_agentesRoutes = require("../routes/agentesRoutes");
+var import_casosRoutes = require("../routes/casosRoutes");
 const swaggerDocument = (0, import_zod_openapi.createDocument)({
   openapi: "3.1.1",
   info: {
