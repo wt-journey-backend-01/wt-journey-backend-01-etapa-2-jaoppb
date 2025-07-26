@@ -92,10 +92,7 @@ function deleteAgent(req, res) {
   if (!import_zod.default.uuid().safeParse(agentId).success) {
     throw new import_invalidID.InvalidIDError("agent", agentId);
   }
-  try {
-    import_agentesRepository.default.deleteAgent(agentId);
-  } catch {
-  }
+  import_agentesRepository.default.deleteAgent(agentId);
   res.status(204).send();
 }
 var agentesController_default = {

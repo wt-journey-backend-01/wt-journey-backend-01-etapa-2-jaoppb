@@ -101,10 +101,7 @@ function deleteCase(req, res) {
   if (!import_zod.default.uuid().safeParse(caseId).success) {
     throw new import_invalidID.InvalidIDError("case", caseId);
   }
-  try {
-    import_casosRepository.default.deleteCase(caseId);
-  } catch {
-  }
+  import_casosRepository.default.deleteCase(caseId);
   res.status(204).send();
 }
 var casosController_default = {

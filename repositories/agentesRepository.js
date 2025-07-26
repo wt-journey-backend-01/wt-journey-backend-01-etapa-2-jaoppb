@@ -67,10 +67,9 @@ function createAgent(newAgent) {
   };
   try {
     findById(agentWithId.id);
+    throw new import_duplicateID.DuplicateIDError(agentWithId.id);
   } catch (error) {
-    if (error instanceof import_notFound.NotFoundError)
-      throw new import_duplicateID.DuplicateIDError(agentWithId.id);
-    else throw error;
+    if (!(error instanceof import_notFound.NotFoundError)) throw error;
   }
   agents.push(agentWithId);
   return agentWithId;

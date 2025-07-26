@@ -79,10 +79,9 @@ function createCase(newCase) {
   };
   try {
     findById(caseWithId.id);
+    throw new import_duplicateID.DuplicateIDError(caseWithId.id);
   } catch (error) {
-    if (error instanceof import_notFound.NotFoundError)
-      throw new import_duplicateID.DuplicateIDError(caseWithId.id);
-    else throw error;
+    if (!(error instanceof import_notFound.NotFoundError)) throw error;
   }
   import_agentesRepository.default.findById(caseWithId.agente_id);
   cases.push(caseWithId);
