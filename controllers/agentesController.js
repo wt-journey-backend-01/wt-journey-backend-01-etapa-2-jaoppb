@@ -35,6 +35,7 @@ module.exports = __toCommonJS(agentesController_exports);
 var import_agentesRepository = __toESM(require("../repositories/agentesRepository"));
 var import_agent = __toESM(require("../models/agent"));
 var import_zod = __toESM(require("zod"));
+var import_invalidID = require("../errors/invalidID");
 const sortFilter = import_zod.default.enum(["dataDeIncorporacao", "-dataDeIncorporacao"]);
 function getAllAgents(req, res) {
   const filters = req.query;
@@ -49,6 +50,9 @@ function getAllAgents(req, res) {
 }
 function getAgentById(req, res) {
   const agentId = req.params.id;
+  if (!import_zod.default.uuid().safeParse(agentId).success) {
+    throw new import_invalidID.InvalidIDError("agent", agentId);
+  }
   const foundAgent = import_agentesRepository.default.findById(agentId);
   res.json(foundAgent);
 }
@@ -59,6 +63,9 @@ function createAgent(req, res) {
 }
 function overwriteAgent(req, res) {
   const agentId = req.params.id;
+  if (!import_zod.default.uuid().safeParse(agentId).success) {
+    throw new import_invalidID.InvalidIDError("agent", agentId);
+  }
   const existingAgent = import_agentesRepository.default.findById(agentId);
   const updatedData = import_agent.default.omit({ id: true }).parse(req.body);
   const updatedAgent = import_agentesRepository.default.updateAgent(
@@ -69,6 +76,9 @@ function overwriteAgent(req, res) {
 }
 function updateAgent(req, res) {
   const agentId = req.params.id;
+  if (!import_zod.default.uuid().safeParse(agentId).success) {
+    throw new import_invalidID.InvalidIDError("agent", agentId);
+  }
   const existingAgent = import_agentesRepository.default.findById(agentId);
   const updatedData = import_agent.default.omit({ id: true }).partial().parse(req.body);
   const updatedAgent = import_agentesRepository.default.updateAgent(
@@ -79,6 +89,9 @@ function updateAgent(req, res) {
 }
 function deleteAgent(req, res) {
   const agentId = req.params.id;
+  if (!import_zod.default.uuid().safeParse(agentId).success) {
+    throw new import_invalidID.InvalidIDError("agent", agentId);
+  }
   try {
     import_agentesRepository.default.deleteAgent(agentId);
   } catch {

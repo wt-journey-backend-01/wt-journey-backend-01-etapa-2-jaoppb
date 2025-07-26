@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import agentRepository from '../repositories/agentesRepository';
 import AgentSchema from '../models/agent';
 import z from 'zod';
-import { v4 as uuid } from 'uuid';
+import { InvalidIDError } from '../errors/invalidID';
 
 export const sortFilter = z.enum(['dataDeIncorporacao', '-dataDeIncorporacao']);
 
@@ -25,6 +25,10 @@ function getAllAgents(req: Request, res: Response) {
 
 function getAgentById(req: Request, res: Response) {
 	const agentId = req.params.id;
+	if (!z.uuid().safeParse(agentId).success) {
+		throw new InvalidIDError('agent', agentId);
+	}
+
 	const foundAgent = agentRepository.findById(agentId);
 	res.json(foundAgent);
 }
@@ -37,6 +41,10 @@ function createAgent(req: Request, res: Response) {
 
 function overwriteAgent(req: Request, res: Response) {
 	const agentId = req.params.id;
+	if (!z.uuid().safeParse(agentId).success) {
+		throw new InvalidIDError('agent', agentId);
+	}
+
 	const existingAgent = agentRepository.findById(agentId);
 	const updatedData = AgentSchema.omit({ id: true }).parse(req.body);
 	const updatedAgent = agentRepository.updateAgent(
@@ -48,6 +56,10 @@ function overwriteAgent(req: Request, res: Response) {
 
 function updateAgent(req: Request, res: Response) {
 	const agentId = req.params.id;
+	if (!z.uuid().safeParse(agentId).success) {
+		throw new InvalidIDError('agent', agentId);
+	}
+
 	const existingAgent = agentRepository.findById(agentId);
 	const updatedData = AgentSchema.omit({ id: true })
 		.partial()
@@ -61,6 +73,10 @@ function updateAgent(req: Request, res: Response) {
 
 function deleteAgent(req: Request, res: Response) {
 	const agentId = req.params.id;
+	if (!z.uuid().safeParse(agentId).success) {
+		throw new InvalidIDError('agent', agentId);
+	}
+
 	try {
 		agentRepository.deleteAgent(agentId);
 	} catch {}

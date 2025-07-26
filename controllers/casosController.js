@@ -35,6 +35,8 @@ var import_casosRepository = __toESM(require("../repositories/casosRepository"))
 var import_case = __toESM(require("../models/case"));
 var import_agentesRepository = __toESM(require("../repositories/agentesRepository"));
 var import_requiredParam = require("../errors/requiredParam");
+var import_zod = __toESM(require("zod"));
+var import_invalidID = require("../errors/invalidID");
 function getAllCases(req, res) {
   const filters = req.query;
   if (filters.status) {
@@ -54,12 +56,18 @@ function getAllCasesWithText(req, res) {
 }
 function getAgentByCaseId(req, res) {
   const caseId = req.params.id;
+  if (!import_zod.default.uuid().safeParse(caseId).success) {
+    throw new import_invalidID.InvalidIDError("case", caseId);
+  }
   const foundCase = import_casosRepository.default.findById(caseId);
   const agent = import_agentesRepository.default.findById(foundCase.agente_id);
   res.json(agent);
 }
 function getCaseById(req, res) {
   const caseId = req.params.id;
+  if (!import_zod.default.uuid().safeParse(caseId).success) {
+    throw new import_invalidID.InvalidIDError("case", caseId);
+  }
   const foundCase = import_casosRepository.default.findById(caseId);
   res.json(foundCase);
 }
@@ -70,6 +78,9 @@ function createCase(req, res) {
 }
 function overwriteCase(req, res) {
   const caseId = req.params.id;
+  if (!import_zod.default.uuid().safeParse(caseId).success) {
+    throw new import_invalidID.InvalidIDError("case", caseId);
+  }
   const existingCase = import_casosRepository.default.findById(caseId);
   const updatedData = import_case.default.omit({ id: true }).parse(req.body);
   const updatedCase = import_casosRepository.default.updateCase(existingCase, updatedData);
@@ -77,6 +88,9 @@ function overwriteCase(req, res) {
 }
 function updateCase(req, res) {
   const caseId = req.params.id;
+  if (!import_zod.default.uuid().safeParse(caseId).success) {
+    throw new import_invalidID.InvalidIDError("case", caseId);
+  }
   const existingCase = import_casosRepository.default.findById(caseId);
   const updatedData = import_case.default.omit({ id: true }).partial().parse(req.body);
   const updatedCase = import_casosRepository.default.updateCase(existingCase, updatedData);
@@ -84,6 +98,9 @@ function updateCase(req, res) {
 }
 function deleteCase(req, res) {
   const caseId = req.params.id;
+  if (!import_zod.default.uuid().safeParse(caseId).success) {
+    throw new import_invalidID.InvalidIDError("case", caseId);
+  }
   try {
     import_casosRepository.default.deleteCase(caseId);
   } catch {

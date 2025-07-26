@@ -3,6 +3,7 @@ import { ZodError } from 'zod';
 import { DuplicateIDError } from './errors/duplicateID';
 import { NotFoundError } from './errors/notFound';
 import { RequiredParamError } from './errors/requiredParam';
+import { InvalidIDError } from './errors/invalidID';
 
 export function errorHandler(
 	err: Error,
@@ -26,7 +27,7 @@ export function errorHandler(
 			return res.status(404).json({
 				message: err.message,
 			});
-		case err instanceof RequiredParamError:
+		case err instanceof RequiredParamError || err instanceof InvalidIDError:
 			return res.status(400).json({
 				message: err.message,
 			});

@@ -25,6 +25,7 @@ var import_zod = require("zod");
 var import_duplicateID = require("./errors/duplicateID");
 var import_notFound = require("./errors/notFound");
 var import_requiredParam = require("./errors/requiredParam");
+var import_invalidID = require("./errors/invalidID");
 function errorHandler(err, req, res, next) {
   console.error(err.stack);
   switch (true) {
@@ -41,7 +42,7 @@ function errorHandler(err, req, res, next) {
       return res.status(404).json({
         message: err.message
       });
-    case err instanceof import_requiredParam.RequiredParamError:
+    case (err instanceof import_requiredParam.RequiredParamError || err instanceof import_invalidID.InvalidIDError):
       return res.status(400).json({
         message: err.message
       });

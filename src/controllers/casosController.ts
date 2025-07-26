@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import casesRepository from '../repositories/casosRepository';
 import CaseSchema from '../models/case';
-import { v4 as uuid } from 'uuid';
 import agentsRepository from '../repositories/agentesRepository';
 import { RequiredParamError } from '../errors/requiredParam';
+import z from 'zod';
+import { InvalidIDError } from '../errors/invalidID';
 
 function getAllCases(req: Request, res: Response) {
 	const filters = req.query as { status?: string; agente_id?: string };
@@ -30,6 +31,10 @@ function getAllCasesWithText(req: Request, res: Response) {
 
 function getAgentByCaseId(req: Request, res: Response) {
 	const caseId = req.params.id;
+	if (!z.uuid().safeParse(caseId).success) {
+		throw new InvalidIDError('case', caseId);
+	}
+
 	const foundCase = casesRepository.findById(caseId);
 	const agent = agentsRepository.findById(foundCase.agente_id);
 	res.json(agent);
@@ -37,6 +42,10 @@ function getAgentByCaseId(req: Request, res: Response) {
 
 function getCaseById(req: Request, res: Response) {
 	const caseId = req.params.id;
+	if (!z.uuid().safeParse(caseId).success) {
+		throw new InvalidIDError('case', caseId);
+	}
+
 	const foundCase = casesRepository.findById(caseId);
 	res.json(foundCase);
 }
@@ -49,6 +58,10 @@ function createCase(req: Request, res: Response) {
 
 function overwriteCase(req: Request, res: Response) {
 	const caseId = req.params.id;
+	if (!z.uuid().safeParse(caseId).success) {
+		throw new InvalidIDError('case', caseId);
+	}
+
 	const existingCase = casesRepository.findById(caseId);
 	const updatedData = CaseSchema.omit({ id: true }).parse(req.body);
 	const updatedCase = casesRepository.updateCase(existingCase, updatedData);
@@ -57,6 +70,10 @@ function overwriteCase(req: Request, res: Response) {
 
 function updateCase(req: Request, res: Response) {
 	const caseId = req.params.id;
+	if (!z.uuid().safeParse(caseId).success) {
+		throw new InvalidIDError('case', caseId);
+	}
+
 	const existingCase = casesRepository.findById(caseId);
 	const updatedData = CaseSchema.omit({ id: true }).partial().parse(req.body);
 	const updatedCase = casesRepository.updateCase(existingCase, updatedData);
@@ -65,6 +82,10 @@ function updateCase(req: Request, res: Response) {
 
 function deleteCase(req: Request, res: Response) {
 	const caseId = req.params.id;
+	if (!z.uuid().safeParse(caseId).success) {
+		throw new InvalidIDError('case', caseId);
+	}
+
 	try {
 		casesRepository.deleteCase(caseId);
 	} catch {}
