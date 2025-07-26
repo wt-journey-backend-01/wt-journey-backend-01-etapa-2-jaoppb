@@ -40,8 +40,14 @@ function createAgent(newAgent: Agent): Agent {
 	return newAgent;
 }
 
+function updateAgent(agent: Agent, updatedAgent: Partial<Agent>): Agent {
+	Object.assign(agent, updatedAgent);
+	return agent;
+}
+
 export default {
 	findAll,
 	findById,
 	createAgent,
+	updateAgent,
 };
