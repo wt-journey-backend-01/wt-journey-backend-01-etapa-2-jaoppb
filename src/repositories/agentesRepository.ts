@@ -17,8 +17,33 @@ const agents: Agent[] = [
 	},
 ];
 
-function findAll(): Agent[] {
-	return agents;
+type AgentFilters = {
+	cargo?: string;
+	sort?: 'dataDeIncorporacao' | '-dataDeIncorporacao';
+};
+
+function findAll(filters?: AgentFilters): Agent[] {
+	let agentsList = agents;
+	if (filters?.cargo) {
+		agentsList = agentsList.filter((a) => a.cargo === filters.cargo);
+	}
+	if (filters?.sort) {
+		agentsList.sort((a, b) => {
+			if (filters.sort === 'dataDeIncorporacao') {
+				return (
+					new Date(a.dataDeIncorporacao).getTime() -
+					new Date(b.dataDeIncorporacao).getTime()
+				);
+			} else if (filters.sort === '-dataDeIncorporacao') {
+				return (
+					new Date(b.dataDeIncorporacao).getTime() -
+					new Date(a.dataDeIncorporacao).getTime()
+				);
+			}
+			return 0;
+		});
+	}
+	return agentsList;
 }
 
 function findById(id: string): Agent {
