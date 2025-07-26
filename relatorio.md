@@ -1,206 +1,280 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 9 créditos restantes para usar o sistema de feedback AI.
+Você tem 8 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para jaoppb:
 
 Nota final: **31.5/100**
 
-Olá, jaoppb! 👋🚀
+# Feedback para jaoppb 🚨👮‍♂️
 
-Primeiramente, quero parabenizá-lo pelo esforço e pela entrega do seu projeto! 🎉 Construir uma API RESTful completa com Node.js e Express não é tarefa fácil, e é muito legal ver que você já tem uma boa base, especialmente com o uso do Zod para validação e a tentativa de modularizar seu código. Você também conseguiu implementar o tratamento de erros customizados e retornos de status HTTP, o que é um grande passo! 👏
+Olá, jaoppb! Primeiro, parabéns por chegar até aqui e entregar sua API para o Departamento de Polícia. Eu vi que você organizou seu projeto com rotas, controllers e repositories, e isso já é um baita avanço! 🎉 Também notei que você implementou várias funcionalidades importantes, como os métodos HTTP para `/agentes` e `/casos`, e até conseguiu passar alguns testes de validação e deleção, o que mostra que você está no caminho certo.
 
----
-
-## Vamos analisar juntos os pontos que podem ser melhorados para sua API ficar ainda mais robusta e alinhada com o que o desafio pede, combinado? 🕵️‍♂️🔍
+Agora, vamos juntos destrinchar o que pode ser melhorado para sua API ficar tinindo e atender a todos os requisitos? Bora lá! 🚀
 
 ---
 
-### 1. Organização do Projeto e Arquivos Faltando
+## 1. Organização do Projeto e Estrutura de Diretórios 🗂️
 
-Eu notei que, ao olhar a estrutura do seu repositório, você não tem os arquivos separados para **rotas**, **controllers** e **repositories** para os recursos `/agentes` e `/casos`. Por exemplo, os arquivos:
+Antes de mais nada, percebi que seu projeto está misturando arquivos `.js` e `.ts` em pastas diferentes (`src/` e na raiz). Por exemplo, você tem:
 
-- `routes/agentesRoutes.js`
-- `routes/casosRoutes.js`
-- `controllers/agentesController.js`
-- `controllers/casosController.js`
-- `repositories/agentesRepository.js`
-- `repositories/casosRepository.js`
+- `server.js` na raiz, mas também `src/server.ts`
+- `routes/agentesRoutes.js` e `src/routes/agentesRoutes.ts`
+- `controllers/agentesController.js` e `src/controllers/agentesController.ts`
+- etc.
 
-**não existem no seu repositório**.
+Essa duplicidade pode causar confusão ao rodar o projeto e dificulta a manutenção. O esperado seria você escolher **uma única estrutura** e manter o código organizado assim:
 
-Mas, olhando seu arquivo `server.js`, percebo que você implementou tudo dentro dele, misturando a lógica de rotas, controladores e repositórios num único arquivo gigante. Isso dificulta a manutenção, a escalabilidade e foge da arquitetura modular esperada.
-
-**Por que isso é importante?**  
-Separar essas camadas ajuda a deixar seu código mais organizado, fácil de entender e de testar. Além disso, o desafio exige essa organização para garantir que você compreenda o padrão MVC aplicado ao Node.js.
-
-**Como resolver?**  
-Você deve criar as pastas e arquivos conforme o padrão esperado, por exemplo:
-
-```bash
-routes/
-  agentesRoutes.js
-  casosRoutes.js
-controllers/
-  agentesController.js
-  casosController.js
-repositories/
-  agentesRepository.js
-  casosRepository.js
+```
+📦 SEU-REPOSITÓRIO
+│
+├── package.json
+├── server.js
+│
+├── routes/
+│   ├── agentesRoutes.js
+│   └── casosRoutes.js
+│
+├── controllers/
+│   ├── agentesController.js
+│   └── casosController.js
+│
+├── repositories/
+│   ├── agentesRepository.js
+│   └── casosRepository.js
+│
+├── docs/
+│   └── swagger.js
+│
+└── utils/
+    └── errorHandler.js
 ```
 
-E dentro de cada arquivo, você exporta as funções específicas, importando-as no `server.js` ou no arquivo principal para montar o servidor.
+**Por que isso importa?**  
+Manter uma estrutura limpa e sem duplicidade evita erros de importação, facilita o entendimento do projeto para você e para outras pessoas, e é um padrão muito usado no mercado. Além disso, ajuda o servidor a carregar os arquivos certos, sem confusão.
 
-**Exemplo simples de rota modularizada:**
-
-```js
-// routes/agentesRoutes.js
-const express = require('express');
-const router = express.Router();
-const agentesController = require('../controllers/agentesController');
-
-router.get('/', agentesController.getAllAgents);
-router.get('/:id', agentesController.getAgentById);
-router.post('/', agentesController.createAgent);
-// ... demais rotas
-
-module.exports = router;
-```
-
-No `server.js`, você importa e usa:
-
-```js
-const agentesRoutes = require('./routes/agentesRoutes');
-app.use('/agentes', agentesRoutes);
-```
+👉 Recomendo fortemente assistir a este vídeo que explica a arquitetura MVC e organização de projetos Node.js:  
+https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
 
 ---
 
-### 2. Endpoints `/casos` e `/agentes` Estão Implementados, Mas Misturados
+## 2. Implementação dos Endpoints e Validação dos IDs UUID 🆔
 
-No seu `server.js`, você tem as funções de controle e repositórios para agentes e casos, o que é ótimo! Porém, elas estão todas no mesmo arquivo, o que torna difícil manter e evoluir o código.
+Um ponto crítico que observei no seu código está relacionado à validação dos IDs usados para agentes e casos.
 
-Além disso, percebi que você criou as rotas diretamente no `server.js` usando `Router()`, mas não está organizando elas em arquivos separados, o que é uma prática essencial para projetos maiores.
+### O que notei?
+
+No seu repositório de agentes (`repositories/agentesRepository.js`), os IDs dos agentes no array inicial são:
+
+```js
+const agents = [
+  {
+    id: "401bccf5-cf9e-489d-8412-446cd169a0f1",
+    nome: "Rommel Carneiro",
+    dataDeIncorporacao: "1992/10/04",
+    cargo: "Investigador"
+  },
+  {
+    id: "501bccf5-cf9e-489d-8412-446cd169a0f1",
+    nome: "Ana Paula Silva",
+    dataDeIncorporacao: "1995/05/15",
+    cargo: "Delegado"
+  }
+];
+```
+
+E no repositório de casos (`repositories/casosRepository.js`), os IDs dos casos são:
+
+```js
+const cases = [
+  {
+    id: "f5fb2ad5-22a8-4cb4-90f2-8733517a0d46",
+    titulo: "homicidio",
+    descricao: "...",
+    status: "aberto",
+    agente_id: "401bccf5-cf9e-489d-8412-446cd169a0f1"
+  },
+  {
+    id: "a2b3c4d5-e6f7-8a9b-0c1d-2e3f4g5h6i7j",
+    titulo: "furto",
+    descricao: "...",
+    status: "solucionado",
+    agente_id: "401bccf5-cf9e-489d-8412-446cd169a0f1"
+  }
+];
+```
+
+Porém, os IDs precisam ser válidos no formato UUID v4, e o segundo ID do caso `"a2b3c4d5-e6f7-8a9b-0c1d-2e3f4g5h6i7j"` contém caracteres inválidos (`g`, `h`, `i`, `j`), o que não é permitido em UUID. Isso pode causar falhas na validação e problemas ao buscar ou manipular esses dados.
+
+### Por que isso é importante?
+
+- IDs inválidos quebram a lógica de busca por ID e atualização.
+- A validação do payload espera UUIDs válidos, mas seu dado inicial não está seguindo isso.
+- Isso pode gerar erros 400 ou 404 inesperados.
+
+### Como corrigir?
+
+Garanta que todos os IDs iniciais no array sejam UUIDs válidos. Você pode gerar novos IDs válidos usando o pacote `uuid`:
+
+```js
+const { v4: uuidv4 } = require('uuid');
+
+const agents = [
+  {
+    id: uuidv4(), // gera um UUID válido
+    nome: "Rommel Carneiro",
+    dataDeIncorporacao: "1992/10/04",
+    cargo: "Investigador"
+  },
+  {
+    id: uuidv4(),
+    nome: "Ana Paula Silva",
+    dataDeIncorporacao: "1995/05/15",
+    cargo: "Delegado"
+  }
+];
+```
+
+Faça o mesmo para os casos, garantindo que todos os IDs e `agente_id` estejam corretos.
+
+👉 Para entender mais sobre UUID e validação, recomendo este artigo sobre status code 400 e validação:  
+https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400
 
 ---
 
-### 3. Validação dos IDs (UUID) e Dados
+## 3. Tratamento de Erros e Status Codes HTTP 📟
 
-Você está usando o Zod para validar os dados, o que é excelente! Porém, há uma penalidade detectada porque os IDs usados para agentes e casos **não são UUIDs válidos**.
+Vi que você já está usando um middleware de tratamento de erros (`errorHandler`), o que é ótimo! Porém, em alguns pontos do código dos controllers, notei que quando um recurso não é encontrado (ex: agente ou caso pelo ID), você não está retornando o status 404 explicitamente.
 
-Exemplo do seu array de agentes:
-
-```js
-[
-  { id: "401bccf5-cf9e-489d-8412-446cd169a0f1", ... },
-  { id: "501bccf5-cf9e-489d-8412-446cd169a0f1", ... }
-]
-```
-
-Esses IDs parecem estar ok, mas o problema é que em alguns casos, como no array de casos, você tem um ID que não é UUID válido:
+Por exemplo, no `getAgentById`:
 
 ```js
-{
-  id: "a2b3c4d5-e6f7-8a9b-0c1d-2e3f4g5h6i7j", // contém caracteres inválidos para UUID
-  ...
+function getAgentById(req, res) {
+  const agentId = req.params.id;
+  const foundAgent = agentesRepository.findById(agentId);
+  res.json(foundAgent);
 }
 ```
 
-UUIDs devem seguir o padrão hexadecimal, e o caractere `g` e `j` não são permitidos. Isso causa falha na validação.
+Se `findById` lançar um erro porque o agente não existe, esse erro deve ser capturado e um status 404 enviado para o cliente. O mesmo vale para atualizações e deleções.
 
-**Dica:** Gere seus UUIDs usando bibliotecas confiáveis como o `uuid` do npm, para garantir que estejam corretos.
+### Como melhorar?
 
----
-
-### 4. Tratamento de Erros e Status Codes
-
-Você fez um ótimo trabalho implementando um middleware para tratamento de erros, com respostas customizadas para erros de validação, duplicidade e não encontrado. Isso é fundamental para APIs robustas.
-
-Porém, percebi que em algumas funções, como na deleção, o erro não está sendo tratado corretamente. Por exemplo:
+Você pode envolver essa lógica em um bloco `try/catch` ou garantir que o middleware de erro capture e envie o status correto. Exemplo simplificado:
 
 ```js
-function pe(e,t){
-  let o=e.params.id;
+function getAgentById(req, res, next) {
   try {
-    c.deleteAgent(o)
-  } catch {}
-  t.status(204).send()
-}
-```
-
-Aqui, você está ignorando erros no `catch` e sempre retornando `204 No Content`, mesmo que o agente não exista. Isso faz com que o cliente não receba o status correto de erro (404).
-
-**Como melhorar?**
-
-Você deve repassar o erro para o middleware de tratamento, assim:
-
-```js
-function pe(req, res, next) {
-  try {
-    c.deleteAgent(req.params.id);
-    res.status(204).send();
+    const agentId = req.params.id;
+    const foundAgent = agentesRepository.findById(agentId);
+    res.json(foundAgent);
   } catch (error) {
-    next(error);
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ message: error.message });
+    } else {
+      next(error);
+    }
   }
 }
 ```
 
-Assim, seu middleware de erros vai enviar o status correto para o cliente.
+Isso garante que o cliente receba uma resposta clara quando o ID não existir.
+
+👉 Para aprofundar sobre tratamento de erros e status codes, veja este vídeo:  
+https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404
 
 ---
 
-### 5. Falta de Implementação de Filtros e Ordenação (Bônus)
+## 4. Validação dos Payloads e Respostas 400 Bad Request 🚫
 
-Você não implementou os filtros, ordenação e buscas avançadas para os endpoints, que são parte dos requisitos bônus. Isso pode ser um próximo passo para você se aprofundar e melhorar sua API.
+Você tem boas validações usando `zod` para os dados recebidos, mas percebi que em alguns métodos PUT e PATCH, quando o payload está incorreto, o status 400 nem sempre é retornado.
 
----
+Isso pode acontecer porque, se a validação lança uma exceção e você não a captura, o servidor pode responder com erro genérico ou até travar.
 
-### 6. Pontos de Melhoria na Estrutura de Arquivos
+### O que fazer?
 
-Vi no seu `package.json` que você está usando arquivos `.ts` na pasta `src/` (TypeScript), mas seu arquivo principal é `server.js` na raiz e não está usando TypeScript diretamente. Isso gera confusão na estrutura e pode dificultar o build e execução do projeto.
+Certifique-se de capturar os erros de validação e responder com status 400 e uma mensagem amigável. Exemplo:
 
-**Sugestão:** Escolha entre usar JavaScript puro ou TypeScript, e organize seu projeto de forma consistente. Se usar TS, configure o `tsconfig.json` para compilar para a pasta `dist/` e rode o servidor a partir daí.
+```js
+function createAgent(req, res, next) {
+  try {
+    const newAgent = agentSchema.omit({ id: true }).parse(req.body);
+    // resto da lógica
+  } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({ message: error.errors });
+    } else {
+      next(error);
+    }
+  }
+}
+```
 
----
-
-## Recursos para você se aprofundar e resolver esses pontos:
-
-- Para entender melhor como organizar rotas, controllers e repositories em Express.js:  
-  https://expressjs.com/pt-br/guide/routing.html  
-  https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH (Arquitetura MVC em Node.js)
-
-- Para garantir que seus IDs sejam UUIDs válidos e evitar erros de validação:  
-  https://www.npmjs.com/package/uuid (biblioteca para gerar UUIDs)  
-  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400 (para entender status 400 e validação)
-
-- Para melhorar o tratamento de erros e status codes HTTP:  
-  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404  
-  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_ (Validação de dados em APIs Node.js/Express)
-
-- Para manipular arrays com métodos como `find`, `filter` e `splice` corretamente:  
-  https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI
+Assim, a API fica mais robusta e o cliente sabe exatamente o que corrigir.
 
 ---
 
-## Resumo Rápido dos Principais Pontos para Você Focar
+## 5. Filtros, Ordenação e Funcionalidades Bônus
 
-- 📁 **Organize seu projeto modularizando rotas, controllers e repositories em arquivos separados.** Isso é fundamental para escalabilidade e manutenção.
+Você implementou os endpoints básicos, mas alguns filtros e funcionalidades extras (como ordenação por data de incorporação, busca por texto, filtros por status e agente) não estão funcionando perfeitamente.
 
-- ✅ **Garanta que os IDs utilizados sejam UUIDs válidos.** Use bibliotecas confiáveis para gerar esses IDs.
+Por exemplo, o filtro de ordenação por `dataDeIncorporacao` está definido no repositório de agentes, mas pode não estar sendo corretamente aplicado ao receber os parâmetros da query.
 
-- 🚨 **Melhore o tratamento de erros, especialmente nas operações de deleção, para enviar status HTTP corretos e mensagens apropriadas.**
+Também, a busca de casos por texto parece estar implementada, mas pode faltar o tratamento correto do parâmetro `q` para garantir que o cliente receba erros claros se esquecer de enviar esse parâmetro.
 
-- 🛠️ **Considere escolher entre JavaScript ou TypeScript e organize seu projeto de forma consistente.**
+### Dica para melhorar:
 
-- 🌟 **Implemente filtros, ordenação e buscas avançadas para os endpoints como um próximo passo de melhoria.**
+- Garanta que os filtros recebam validações para os parâmetros.
+- Sempre valide se o parâmetro obrigatório está presente e retorne erro personalizado se não estiver.
+- Teste os filtros e ordenações manualmente para garantir que estão funcionando.
 
 ---
 
-Jaoppb, você já tem uma base muito boa e com alguns ajustes, seu projeto vai ficar excelente! Continue praticando essa organização modular, que é essencial para projetos profissionais. Estou aqui torcendo pelo seu progresso! 💪✨
+## 6. Penalidades e Ajustes Finais
 
-Se precisar, volte aos vídeos recomendados e documentação para reforçar esses conceitos. Você está no caminho certo! 🚀
+Você recebeu penalidades por:
 
-Um abraço e até a próxima revisão! 🤖💙
+- IDs não serem UUID válidos (já abordado acima).
+- Estrutura de arquivos não seguindo o padrão esperado (também já falamos).
+- Arquivos estáticos e organização geral.
+
+Corrigindo esses pontos, seu projeto vai ficar muito mais alinhado com as expectativas e evitará erros de execução.
+
+---
+
+# Resumo Rápido dos Pontos para Focar 🔍
+
+- **Organize seu projeto** em uma única estrutura consistente, preferencialmente sem duplicar arquivos `.js` e `.ts` em pastas diferentes.  
+- **Corrija os IDs** usados nos dados iniciais para que sejam UUIDs válidos, evitando erros na validação e busca.  
+- **Implemente tratamento de erros completo** para retornar status 404 quando um recurso não for encontrado e 400 para payloads inválidos.  
+- **Valide os parâmetros de query e corpo de requisição** para filtros e buscas, retornando mensagens de erro claras para o cliente.  
+- **Ajuste os filtros e ordenações** para que funcionem corretamente e testem todos os cenários.  
+- **Mantenha seu middleware de erro ativo e abrangente** para capturar exceções e responder adequadamente.
+
+---
+
+# Encerrando com Motivação ✨
+
+jaoppb, você já tem uma base muito boa e estruturada para sua API! Com alguns ajustes de organização, validação e tratamento de erros, seu projeto vai ficar super robusto e alinhado com as boas práticas do mercado. Continue praticando e explorando essas ferramentas — Node.js e Express são poderosos e você está no caminho certo para dominá-los! 💪
+
+Se quiser, recomendo revisar os conteúdos que deixei nos links para consolidar esses conceitos. E claro, sempre que precisar, conte comigo para desatar esses nós! 😉
+
+Abraço e sucesso no seu código! 🚓💻
+
+---
+
+# Recursos recomendados para você:
+
+- [Arquitetura MVC e organização de projetos Node.js](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)  
+- [Express.js - Guia de roteamento oficial](https://expressjs.com/pt-br/guide/routing.html)  
+- [Status 400 Bad Request - MDN](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400)  
+- [Status 404 Not Found - MDN](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404)  
+- [Validação de dados em APIs Node.js/Express](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)  
+- [Manipulação de arrays em JavaScript](https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI)
+
+---
+
+Força aí, jaoppb! Seu esforço já está mostrando frutos. Continue aprimorando e logo logo sua API estará nota 100! 🚀👊
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
