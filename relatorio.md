@@ -1,140 +1,203 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 5 créditos restantes para usar o sistema de feedback AI.
+Você tem 4 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para jaoppb:
 
-Nota final: **94.9/100**
+Nota final: **100.0/100**
 
 Olá, jaoppb! 👋🚀
 
-Primeiramente, parabéns pelo esforço e pela qualidade geral do seu projeto! 🎉 Você estruturou muito bem sua API RESTful para o Departamento de Polícia, com endpoints bem organizados, controllers e repositories funcionando como esperado. Isso fica claro pelo seu uso correto do Express Router, validações com Zod e tratamento de erros customizados — um baita avanço! 👏
+Primeiramente, parabéns pelo empenho e dedicação nesse desafio da API para o Departamento de Polícia! 🎉 Você entregou uma API funcional, organizada e com todos os endpoints básicos implementados, o que já é uma grande vitória! Além disso, mandou muito bem nos bônus de filtragem simples para os casos, mostrando que você foi além do obrigatório. Isso é incrível e merece um destaque especial! 🌟
 
 ---
 
-### 🎯 Pontos Fortes que Merecem Destaque
+## O que está brilhando no seu código ✨
 
-- **Arquitetura modular:** Você dividiu seu código em `routes`, `controllers` e `repositories` de forma clara e consistente, exatamente como esperado. Isso facilita a manutenção e escalabilidade.
-- **Validações com Zod:** A validação dos dados de entrada está muito bem feita, com schemas para agentes e casos, incluindo validação de UUID, enums e campos obrigatórios.
-- **Tratamento de erros customizados:** Você criou erros personalizados como `InvalidIDError`, `NotFoundError` e `RequiredParamError`, o que demonstra cuidado na experiência do consumidor da API.
-- **Filtros e ordenações:** Implementou filtros básicos e ordenação para agentes e casos, o que já é um diferencial e um bônus que você conquistou com mérito.
-- **Status HTTP corretos:** Você usou corretamente os códigos 200, 201, 204, 400 e 404, o que mostra domínio do protocolo HTTP.
-
----
-
-### 🔍 Onde Podemos Dar Um Upgrade Juntos? (Análise de Causa Raiz)
-
-Vi que seu projeto está quase perfeito, mas um ponto específico chamou minha atenção e está impedindo que sua API atinja 100% de excelência:
-
-#### Problema principal: Falha ao criar um caso com um agente_id inválido/inexistente retorna 404, mas o esperado é 400.
+- **Endpoints essenciais funcionando:** Os métodos HTTP para `/agentes` e `/casos` estão todos implementados com as operações CRUD completas. Isso é fundamental para uma API RESTful e você acertou em cheio!
+- **Validações com Zod:** Usar o Zod para validar payloads e parâmetros é uma ótima prática, e você aplicou isso muito bem, garantindo integridade dos dados.
+- **Arquitetura modular:** Separar seu código em `routes`, `controllers` e `repositories` mostra que você entende a importância de organizar o projeto para escalabilidade.
+- **Tratamento de erros customizado:** Você criou erros personalizados para IDs inválidos, parâmetros obrigatórios, e outros casos, o que é um diferencial para APIs robustas.
+- **Filtros nos casos:** A filtragem por `status` e `agente_id` nos casos está implementada corretamente, mostrando que você domina manipulação de query params e arrays.
 
 ---
 
-### Por que isso acontece?
+## Pontos que merecem sua atenção para subir ainda mais o nível 🚦
 
-Ao analisar o arquivo `repositories/casosRepository.js`, na função `createCase`, você tem este trecho:
+### 1. Filtros e ordenação para agentes por data de incorporação
+
+Você implementou o filtro de agentes por `cargo` e a ordenação por `dataDeIncorporacao` (asc e desc) no repositório e validou o parâmetro `sort` no controller, o que é ótimo! Porém, percebi que o filtro por data de incorporação em si (ex: filtrar agentes que entraram após uma certa data) não está implementado. Isso pode estar afetando os testes bônus relacionados a filtragem complexa.
+
+No seu `agentesRepository.js`, a função `findAll` está assim:
 
 ```js
-function createCase(newCase) {
-  const caseWithId = {
-    ...newCase,
-    id: (0, import_uuid.v4)()
-  };
-  try {
-    findById(caseWithId.id);
-    throw new import_duplicateID.DuplicateIDError(caseWithId.id);
-  } catch (error) {
-    if (!(error instanceof import_notFound.NotFoundError)) throw error;
+function findAll(filters) {
+  let agentsList = agents;
+  if (filters?.cargo) {
+    agentsList = agentsList.filter((a) => a.cargo === filters.cargo);
   }
-  import_agentesRepository.default.findById(caseWithId.agente_id);
-  cases.push(caseWithId);
-  return caseWithId;
+  if (filters?.sort) {
+    agentsList.sort((a, b) => {
+      if (filters.sort === "dataDeIncorporacao") {
+        return new Date(a.dataDeIncorporacao).getTime() - new Date(b.dataDeIncorporacao).getTime();
+      } else if (filters.sort === "-dataDeIncorporacao") {
+        return new Date(b.dataDeIncorporacao).getTime() - new Date(a.dataDeIncorporacao).getTime();
+      }
+      return 0;
+    });
+  }
+  return agentsList;
 }
 ```
 
-Aqui você faz uma busca pelo agente responsável (`import_agentesRepository.default.findById(caseWithId.agente_id)`) para garantir que ele exista, o que é ótimo! Porém, se o agente não existir, a função `findById` do repositório de agentes lança um erro `NotFoundError`, que no seu fluxo atual acaba gerando um status 404 no controller, e não um 400.
-
-**Mas qual é a diferença?**
-
-- **404 Not Found**: Significa que o recurso (ex: um caso ou agente) não foi encontrado na base, geralmente para buscas por ID.
-- **400 Bad Request**: Significa que o cliente enviou dados inválidos ou mal formatados — e neste caso, o `agente_id` que você recebeu é inválido para criação, pois o agente não existe.
-
-Então, o ideal é que quando o `agente_id` recebido para criar um caso não existir, sua API retorne um **400 Bad Request**, pois o problema está no dado enviado pelo cliente, não em um recurso buscado.
-
----
-
-### Como corrigir?
-
-Você pode capturar o erro de agente inexistente e lançar um erro personalizado de validação, que será tratado como 400.
-
-Exemplo de ajuste no controller `casosController.js` no método `createCase`:
+**Sugestão:** Para implementar filtragem por data, você poderia adicionar um filtro extra, por exemplo, `dataDeIncorporacaoMin` e/ou `dataDeIncorporacaoMax` no objeto `filters`, e filtrar assim:
 
 ```js
-function createCase(req, res) {
-  const newCase = import_case.default.omit({ id: true }).parse(req.body);
-  try {
-    // Validar se o agente existe
-    import_agentesRepository.default.findById(newCase.agente_id);
-  } catch (error) {
-    if (error instanceof import_notFound.NotFoundError) {
-      // Lance um erro de Bad Request para agente_id inválido
-      return res.status(400).json({ message: `Agente com id '${newCase.agente_id}' não existe.` });
-    }
-    throw error;
-  }
-  const createdCase = import_casosRepository.default.createCase(newCase);
-  res.status(201).json(createdCase);
+if (filters?.dataDeIncorporacaoMin) {
+  const minDate = new Date(filters.dataDeIncorporacaoMin);
+  agentsList = agentsList.filter(a => new Date(a.dataDeIncorporacao) >= minDate);
+}
+if (filters?.dataDeIncorporacaoMax) {
+  const maxDate = new Date(filters.dataDeIncorporacaoMax);
+  agentsList = agentsList.filter(a => new Date(a.dataDeIncorporacao) <= maxDate);
 }
 ```
 
-Ou, se preferir, faça isso dentro do `createCase` do repositório, mas garanta que o erro seja tratado no controller para retornar 400.
+Assim, você amplia a capacidade de filtragem para casos mais complexos.
 
 ---
 
-### Por que essa mudança é importante?
+### 2. Endpoint de busca textual nos casos (`/casos/search`)
 
-Ela refina a semântica da sua API, deixando claro para o cliente que o erro veio de um dado inválido no corpo da requisição, e não de um recurso inexistente buscado via URL. Isso melhora a experiência do usuário da API e ajuda no debug.
+Você implementou o endpoint `/casos/search` no `casosRoutes.js` e no controller, com a função `getAllCasesWithText`, que filtra os casos pelo texto em título ou descrição. Isso está correto e muito bem feito!
+
+No entanto, o teste bônus indicou que a filtragem por keywords pode não estar 100% funcionando como esperado. Eu dei uma olhada na função `findAllWithText` do repositório:
+
+```js
+function findAllWithText(text) {
+  const normalized = text.toLowerCase().normalize();
+  return cases.filter(
+    (c) => c.titulo.toLowerCase().normalize().includes(normalized) || c.descricao.toLowerCase().normalize().includes(normalized)
+  );
+}
+```
+
+Essa lógica parece correta! Então, o problema pode estar no fato de que o parâmetro `q` não está sendo validado corretamente no controller, ou talvez o middleware de tratamento de erros não esteja retornando a mensagem customizada esperada.
+
+No controller:
+
+```js
+function getAllCasesWithText(req, res) {
+  const text = req.query.q;
+  if (!text) throw new import_requiredParam.RequiredParamError("q");
+  const cases = import_casosRepository.default.findAllWithText(text);
+  res.json(cases);
+}
+```
+
+Aqui, você já lança um erro customizado para parâmetro obrigatório, o que é ótimo! Então, a questão pode estar no middleware `errorHandler` (que não foi enviado para análise) ou na configuração do Swagger para esse endpoint.
+
+**Dica:** Verifique se o middleware de erro está capturando e formatando corretamente esse erro customizado para retornar o status 400 com a mensagem personalizada. Isso é importante para que o cliente da API entenda o que deu errado.
 
 ---
 
-### Outros detalhes que percebi e podem ajudar a melhorar ainda mais:
+### 3. Endpoint para obter o agente responsável por um caso (`/casos/:id/agente`)
 
-- Nos seus controllers, você já usa `zod` para validar UUIDs e payloads, isso está ótimo! Continue fazendo isso para garantir segurança e consistência.
-- Seu middleware de tratamento de erros (`errorHandler`) está bem posicionado no `server.js`, garantindo que erros sejam capturados e respostas adequadas sejam enviadas.
-- A documentação com Swagger está bem estruturada nas rotas, isso é um diferencial que agrega muito valor.
+Esse endpoint está implementado no arquivo `casosRoutes.js` e no controller, mas os testes bônus indicam que ele não está funcionando corretamente.
+
+No controller, a função é:
+
+```js
+function getAgentByCaseId(req, res) {
+  const caseId = req.params.id;
+  if (!import_zod.default.uuid().safeParse(caseId).success) {
+    throw new import_invalidID.InvalidIDError("case", caseId);
+  }
+  const foundCase = import_casosRepository.default.findById(caseId);
+  const agent = import_agentesRepository.default.findById(foundCase.agente_id);
+  res.json(agent);
+}
+```
+
+A lógica está correta, no sentido de buscar o caso pelo ID e depois o agente relacionado. Porém, pode estar faltando um tratamento de erro para o caso em que o agente não seja encontrado (mesmo que improvável, é bom garantir).
+
+Além disso, verifique se a rota está registrada corretamente no `server.js` (o que está, pois você importa `casosRoutes`), e se o Swagger está documentando esse endpoint para os testes reconhecerem.
 
 ---
 
-### Recursos para você aprofundar e consolidar esses conceitos:
+### 4. Mensagens de erro customizadas para agentes e casos inválidos
 
-- Para entender melhor o uso correto dos status HTTP 400 e 404, recomendo este artigo da MDN:  
-  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400  
-  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404
+Você criou classes de erro personalizadas e as utiliza para validar IDs e parâmetros obrigatórios, o que é excelente! Porém, os testes bônus indicam que as mensagens customizadas podem não estar aparecendo como esperado.
 
-- Para aprimorar o tratamento de erros e validação em APIs Node.js com Express e Zod, veja este vídeo super didático:  
-  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
+Isso geralmente acontece quando o middleware de tratamento de erros não está formatando ou repassando corretamente essas mensagens para o cliente.
 
-- Caso queira revisar os fundamentos de API REST e Express.js para garantir a estrutura e rotas, este vídeo é excelente:  
+No seu `server.js`, você usa:
+
+```js
+app.use(import_utils.errorHandler);
+```
+
+Como o arquivo `utils.js` não foi enviado, não posso analisar diretamente, mas sugiro que você revise esse middleware para garantir que ele:
+
+- Capture os erros customizados (ex: `InvalidIDError`, `RequiredParamError`, etc).
+- Retorne o status HTTP correto (400, 404, etc).
+- Envie no corpo da resposta uma mensagem clara e personalizada, por exemplo:
+
+```js
+res.status(err.statusCode || 500).json({
+  error: err.name,
+  message: err.message
+});
+```
+
+Assim, o cliente da API tem uma resposta consistente e fácil de entender.
+
+---
+
+### 5. Organização da estrutura do projeto
+
+Sua estrutura está muito boa e segue a modularização esperada, com pastas separadas para `routes`, `controllers`, `repositories`, `models`, `errors` e `docs`.
+
+A única sugestão é que o middleware de erro (`errorHandler`) esteja dentro de uma pasta `utils/` ou `middlewares/` para ficar mais claro e organizado, já que no seu projeto está em `utils.js` na raiz, enquanto o import no `server.js` é:
+
+```js
+app.use(import_utils.errorHandler);
+```
+
+Se quiser, pode criar uma pasta `utils/` e mover esse arquivo para lá, assim fica mais alinhado com a arquitetura recomendada.
+
+---
+
+## Recursos para te ajudar a subir ainda mais o nível 📚
+
+- Para aprofundar no tratamento de erros customizados e middleware no Express, veja este vídeo:  
+  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_  
+  Ele vai ajudar a garantir que suas mensagens de erro personalizadas cheguem certinhas para o cliente.
+
+- Para entender melhor como organizar rotas e middlewares no Express, recomendo:  
   https://expressjs.com/pt-br/guide/routing.html
 
----
+- Para manipulação de arrays e filtros complexos, este vídeo é muito útil:  
+  https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI
 
-### 🌟 Resumo Rápido do Que Você Pode Fazer Agora
-
-- [ ] Ajustar o tratamento do erro quando o `agente_id` enviado no corpo do POST `/casos` não existir, retornando status 400 (Bad Request) em vez de 404.
-- [ ] Garantir que essa lógica de validação aconteça preferencialmente no controller, para manter o repositório focado em manipulação de dados.
-- [ ] Continuar usando Zod para validar os campos e UUIDs, isso garante robustez.
-- [ ] Revisar os conceitos de status HTTP para consolidar a semântica correta na API.
+- Para dominar a arquitetura MVC aplicada a Node.js, que é a base do seu projeto:  
+  https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
 
 ---
 
-### Conclusão
+## Resumo rápido dos pontos para focar 🔍
 
-jaoppb, seu projeto está muito bem feito, com uma base sólida e muitos pontos extras implementados! 🚀 O pequeno ajuste no tratamento do erro de `agente_id` inválido vai fazer sua API ficar ainda mais profissional e alinhada com as melhores práticas REST. Continue nessa pegada, que você está no caminho certo para se tornar um mestre em backend! 💪👨‍💻👩‍💻
+- [ ] Implementar filtros mais avançados para agentes, especialmente por data de incorporação.
+- [ ] Garantir que o middleware de tratamento de erros formate e retorne corretamente mensagens customizadas.
+- [ ] Verificar se o endpoint `/casos/:id/agente` está tratando todos os casos de erro e está bem documentado.
+- [ ] Considerar organizar o middleware de erros dentro de uma pasta `utils/` para melhor modularização.
+- [ ] Testar manualmente os endpoints de busca textual e agente por caso para garantir que respondem conforme esperado.
 
-Se precisar, volte aos recursos que indiquei para reforçar o entendimento, e não hesite em experimentar no código. Estou aqui torcendo pelo seu sucesso! 🎉✨
+---
 
-Um abraço do seu Code Buddy! 🤖💙
+Jaoppb, você está no caminho certo, com uma base sólida e boa organização! 👏 Continue aprimorando esses detalhes de filtragem avançada e tratamento de erros para deixar sua API ainda mais robusta e profissional. Se precisar, volte aos recursos indicados para reforçar esses conceitos. Tenho certeza que você vai tirar de letra! 🚀
+
+Conte comigo para o que precisar! Até a próxima! 👊😄
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
