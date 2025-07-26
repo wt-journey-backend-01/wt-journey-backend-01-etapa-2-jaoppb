@@ -1,244 +1,285 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 7 créditos restantes para usar o sistema de feedback AI.
+Você tem 6 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para jaoppb:
 
-Nota final: **36.5/100**
+Nota final: **74.6/100**
 
-# Feedback do seu Desafio API REST com Express.js 🚓🚀
+# Feedback para você, jaoppb! 🚀🎉
 
-Olá, jaoppb! Que jornada você fez até aqui! 🎉 Antes de mais nada, quero parabenizar você por ter estruturado seu projeto com controllers, routes e repositories — isso demonstra que você já está no caminho certo para construir APIs organizadas e escaláveis. Além disso, notei que você implementou a maioria dos endpoints para agentes e casos, e até alguns bônus, como filtros e ordenação, o que é super positivo! 👏👏
+Olá! Antes de mais nada, parabéns pelo esforço e pela entrega! Seu projeto está bem estruturado, com rotas, controllers e repositories organizados, e você conseguiu implementar corretamente os métodos básicos para os recursos `/agentes` e `/casos`. Isso é fundamental e mostra que você compreendeu muito bem a arquitetura modular do Express.js e a manipulação dos dados em memória. 👏
 
-Agora, vamos juntos destrinchar alguns pontos que encontrei para que seu código fique ainda melhor e seu projeto brilhe! ✨
-
----
-
-## 1. Estrutura do Projeto: Tá Quase Lá, Mas Atenção!
-
-Sua estrutura de diretórios está praticamente correta, com pastas separadas para `controllers`, `repositories`, `routes` e `docs`. Isso é ótimo! Só um detalhe importante: o arquivo `server.js` está na raiz, que é o esperado, e você está usando o `express.json()` para lidar com JSON, perfeito.
-
-Porém, percebi no seu `package.json` que está usando `"type": "commonjs"`, e seus arquivos `.js` estão com um padrão misto de importações/exports que parecem ser transpilados de TypeScript (por exemplo, muitos wrappers `__defProp`, `__copyProps`, etc). Isso pode ser confuso para o Node.js interpretar, e pode afetar o carregamento correto dos módulos.
-
-**Dica:** Se você está usando TypeScript, mantenha o código fonte em `.ts` dentro da pasta `src/` e transpile para `.js` na raiz, ou configure o `"type": "module"` para usar ES modules diretamente. Isso evita problemas com import/export e ajuda a manter seu projeto limpo.
-
-Recomendo fortemente assistir a este vídeo que explica a arquitetura MVC e organização de projetos Node.js com Express:  
-👉 https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
+Além disso, você conseguiu implementar filtros simples para os casos, e o endpoint para filtrar casos por status e por agente está funcionando, o que é um ótimo bônus! Também vi que o CRUD básico para agentes está bem sólido, com validação e tratamento de erros para payloads mal formatados. Muito bom! 🎯
 
 ---
 
-## 2. Endpoints `/agentes` e `/casos`: Eles Estão, Mas...
-
-Você implementou as rotas para agentes e casos, o que é ótimo! Por exemplo, veja o trecho do seu arquivo `routes/casosRoutes.js`:
-
-```js
-router.get("/casos", import_casosController.default.getAllCases);
-router.post("/casos", import_casosController.default.createCase);
-router.put("/casos/:id", import_casosController.default.overwriteCase);
-router.patch("/casos/:id", import_casosController.default.updateCase);
-router.delete("/casos/:id", import_casosController.default.deleteCase);
-```
-
-Isso mostra que você tem os métodos HTTP implementados para casos, e o mesmo para agentes.
-
-**Porém, o que está impactando o funcionamento correto dos endpoints é o tratamento de erros e a validação dos dados.**
+## Vamos analisar juntos os pontos que podem ser melhorados para deixar sua API ainda mais robusta e alinhada ao esperado? 🕵️‍♂️
 
 ---
 
-## 3. Validação e Tratamento de Erros: O Pulo do Gato Que Está Faltando 🐱‍👤
+### 1. Tratamento correto do status 404 para recursos inexistentes
 
-Ao analisar seus controllers, por exemplo em `controllers/agentesController.js`, percebi que você está usando o `zod` para validar os dados, o que é excelente! Dá uma olhada:
-
-```js
-const newAgent = import_agent.default.omit({ id: true }).parse(req.body);
-```
-
-Porém, um ponto importante: quando você usa `.parse()`, se o dado for inválido, o `zod` lança uma exceção que, se não for capturada, vai travar sua aplicação e não retornar o status HTTP correto (como 400 Bad Request). No seu código, não vi um tratamento de erros para capturar essas exceções e responder adequadamente.
-
-Além disso, no `repositories/agentesRepository.js`, tem um erro na lógica de criação de agentes:
-
-```js
-function createAgent(newAgent) {
-  const agentWithId = {
-    ...newAgent,
-    id: (0, import_uuid.v4)()
-  };
-  try {
-    findById(agentWithId.id);
-  } catch (error) {
-    if (error instanceof import_notFound.NotFoundError)
-      throw new import_duplicateID.DuplicateIDError(agentWithId.id);
-    else throw error;
-  }
-  agents.push(agentWithId);
-  return agentWithId;
-}
-```
-
-Aqui você está tentando garantir que o ID gerado não exista, mas a lógica está invertida: se `findById` lançar um `NotFoundError`, significa que o ID **não existe**, então você **não deveria lançar um erro de duplicidade, e sim continuar normalmente**. O jeito que está, você está lançando erro quando o ID não existe, o que impede a criação correta. Isso bloqueia a criação dos agentes e casos.
-
-**Sugestão de correção:**
-
-```js
-function createAgent(newAgent) {
-  const agentWithId = {
-    ...newAgent,
-    id: (0, import_uuid.v4)()
-  };
-  try {
-    findById(agentWithId.id);
-    // Se encontrar, significa que o ID já existe, lança erro
-    throw new import_duplicateID.DuplicateIDError(agentWithId.id);
-  } catch (error) {
-    if (error instanceof import_notFound.NotFoundError) {
-      // ID não existe, tudo certo, pode adicionar
-      agents.push(agentWithId);
-      return agentWithId;
-    } else {
-      throw error;
-    }
-  }
-}
-```
-
-Esse ajuste vai destravar a criação de agentes e casos.
-
----
-
-## 4. Status HTTP e Respostas: Precisamos Ajustar Para Serem Mais Precisas
-
-Em seus controllers, por exemplo:
+Você implementou as funções para buscar agentes e casos por ID, porém, percebi que quando um agente ou caso não existe, o seu código não está retornando o status HTTP 404 como deveria. Por exemplo, no seu `agentesController.js`:
 
 ```js
 function getAgentById(req, res) {
   const agentId = req.params.id;
-  const foundAgent = import_agentesRepository.default.findById(agentId);
+  if (!zod.uuid().safeParse(agentId).success) {
+    throw new InvalidIDError("agent", agentId);
+  }
+  const foundAgent = agentesRepository.findById(agentId);
   res.json(foundAgent);
 }
 ```
 
-Aqui, se o agente não for encontrado, o método `findById` lança um erro, mas você não está tratando esse erro para enviar um 404. Isso pode causar um erro não tratado no servidor.
+Aqui, você chama `findById` do repository que lança um erro `NotFoundError` se não encontrar o agente, mas não há um tratamento claro para esse erro dentro do controller, o que faz com que a API não retorne o 404 corretamente.
 
-**O ideal é capturar esse erro e responder com o status correto, assim:**
+**O que fazer?**
+
+Você deve garantir que esse erro seja capturado e convertido em uma resposta HTTP com status 404. Como você já tem um middleware de tratamento de erros (`errorHandler`), certifique-se que ele está configurado para interceptar o `NotFoundError` e retornar o status correto.
+
+Se ainda não fez isso, um exemplo simples do middleware pode ser:
 
 ```js
-function getAgentById(req, res) {
-  try {
-    const agentId = req.params.id;
-    const foundAgent = import_agentesRepository.default.findById(agentId);
-    res.json(foundAgent);
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.status(404).json({ error: error.message });
-    } else {
-      res.status(500).json({ error: "Erro interno do servidor" });
-    }
+function errorHandler(err, req, res, next) {
+  if (err instanceof NotFoundError) {
+    return res.status(404).json({ message: err.message });
   }
+  if (err instanceof InvalidIDError) {
+    return res.status(400).json({ message: err.message });
+  }
+  // Outros tratamentos...
+  res.status(500).json({ message: "Internal Server Error" });
 }
 ```
 
-O mesmo vale para os demais métodos que dependem de `findById` ou outras funções que lançam erros.
+Verifique se seu middleware está assim ou similar e que você está usando ele no `server.js` depois das rotas, o que você já fez, parabéns!
 
 ---
 
-## 5. IDs Devem Ser UUIDs Válidos: Atenção à Validação!
+### 2. Validação e tratamento correto dos payloads no PATCH e PUT
 
-Vi que você está usando `uuid.v4()` para gerar IDs, isso é ótimo! Mas a penalização indica que alguns IDs usados não são UUID válidos. Isso geralmente acontece se você aceitar IDs no payload ou criar IDs manualmente sem usar a biblioteca.
+Você recebeu penalidades porque a API permite alterar o campo `id` dos agentes e casos via métodos PUT e PATCH. Isso não deve acontecer, pois o `id` é a chave única do recurso e deve ser imutável.
 
-No seu modelo `agent.js` e `case.js`, certifique-se que o campo `id` tem validação para UUID, por exemplo usando o `zod`:
+No seu controller, você usa o Zod para validar o corpo da requisição, omitindo o campo `id`:
 
 ```js
-import { z } from "zod";
-
-const agentSchema = z.object({
-  id: z.string().uuid(),
-  nome: z.string(),
-  dataDeIncorporacao: z.string(),
-  cargo: z.string()
-});
+const updatedData = agentSchema.omit({ id: true }).parse(req.body);
 ```
 
-E no controller, valide sempre os IDs recebidos nos parâmetros de rota para garantir que são UUIDs válidos. Isso evita erros e garante consistência.
+Porém, o problema pode estar no fato de que, mesmo com essa validação, talvez você não esteja bloqueando explicitamente a presença do campo `id` no payload, ou o schema permite que o campo `id` seja enviado e ignorado, o que pode confundir o cliente.
 
----
+**O que fazer?**
 
-## 6. Filtros, Ordenação e Busca: Implementados Mas Ainda Falta Ajustes
+Garanta que o schema usado para validação dos dados para atualização não aceite o campo `id` de forma alguma. Se o campo `id` aparecer no payload, a validação deve falhar com status 400.
 
-Você já implementou filtros por cargo, status, agente_id e ordenação por data, o que é ótimo! Porém, percebi que os testes bônus falharam, indicando que:
-
-- Os filtros podem não estar funcionando perfeitamente.
-- O endpoint de busca de agente responsável por caso pode não estar retornando o 404 quando o caso não existe.
-- Mensagens de erro personalizadas para filtros inválidos não estão implementadas.
-
-Para melhorar, você pode adicionar validações e tratamento de erros personalizados nos filtros, por exemplo:
+Além disso, no seu método de update no repository, você está fazendo:
 
 ```js
-function getAllCases(req, res) {
-  try {
-    const filters = req.query;
-    if (filters.status) {
-      caseSchema.shape.status.parse(filters.status);
-    }
-    if (filters.agente_id) {
-      agentSchema.shape.id.parse(filters.agente_id);
-    }
-    const cases = casesRepository.findAll(filters);
-    res.json(cases);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({ error: "Filtro inválido", details: error.errors });
-    } else {
-      res.status(500).json({ error: "Erro interno" });
-    }
-  }
+function updateAgent(agent, updatedAgent) {
+  Object.assign(agent, updatedAgent);
+  return agent;
 }
 ```
 
-Assim, você garante que filtros inválidos retornem erro 400 com mensagem clara.
+Aqui, se `updatedAgent` tiver o campo `id`, ele vai sobrescrever o `id` original. Por isso, é importante que `updatedAgent` nunca tenha o campo `id` (validação), ou que você explicitamente remova esse campo antes de aplicar o update.
 
 ---
 
-## 7. Recomendações de Aprendizado 📚
+### 3. Endpoint para busca de agente responsável pelo caso
 
-Para fortalecer esses pontos que falamos, aqui vão alguns recursos que vão te ajudar muito:
+Você implementou o endpoint `/casos/:id/agente`, que deveria retornar o agente responsável por um caso, mas o teste de filtro de agente por caso falhou.
 
-- **Validação de dados e tratamento de erros em APIs Node.js/Express:**  
-  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
+No seu `casosController.js`, a função é:
 
-- **Status HTTP 400 e 404 explicados e como usar:**  
+```js
+function getAgentByCaseId(req, res) {
+  const caseId = req.params.id;
+  if (!zod.uuid().safeParse(caseId).success) {
+    throw new InvalidIDError("case", caseId);
+  }
+  const foundCase = casosRepository.findById(caseId);
+  const agent = agentesRepository.findById(foundCase.agente_id);
+  res.json(agent);
+}
+```
+
+O código parece correto, mas o teste falhou. Isso pode indicar que:
+
+- O endpoint `/casos/:id/agente` não está sendo corretamente registrado na rota (verifique se está no `casosRoutes.js`).
+- Ou que o tratamento de erro para caso ou agente não encontrado não está retornando 404, como expliquei no item 1.
+- Ou que o middleware de erro não está funcionando para esse endpoint.
+
+**O que fazer?**
+
+Confirme que a rota está assim no `casosRoutes.js`:
+
+```js
+router.get("/casos/:id/agente", casosController.getAgentByCaseId);
+```
+
+E que o middleware de erro está configurado para capturar erros de not found e invalid ID.
+
+---
+
+### 4. Endpoint de busca de casos por texto (filtro por keywords)
+
+Você criou o endpoint `/casos/search` para buscar casos por texto no título ou descrição, mas o teste falhou.
+
+No `casosRoutes.js`:
+
+```js
+router.get("/casos/search", casosController.getAllCasesWithText);
+```
+
+E no controller:
+
+```js
+function getAllCasesWithText(req, res) {
+  const text = req.query.q;
+  if (!text) throw new RequiredParamError("q");
+  const cases = casosRepository.findAllWithText(text);
+  res.json(cases);
+}
+```
+
+O problema pode ser:
+
+- Falta de tratamento para o erro `RequiredParamError`, que deve retornar status 400.
+- Ou o filtro no repository não está funcionando corretamente para fazer a busca por keywords.
+
+No seu `casosRepository.js`, o filtro é:
+
+```js
+function findAllWithText(text) {
+  const normalized = text.toLowerCase().normalize();
+  return cases.filter(
+    (c) => c.titulo.toLowerCase().normalize().includes(normalized) || c.descricao.toLowerCase().normalize().includes(normalized)
+  );
+}
+```
+
+Esse filtro parece correto e eficiente.
+
+**O que fazer?**
+
+Verifique se o middleware de erro trata o `RequiredParamError` com status 400 e mensagem adequada.
+
+---
+
+### 5. Ordenação e filtro avançado para agentes por data de incorporação
+
+O bônus de ordenar agentes por `dataDeIncorporacao` em ordem crescente e decrescente não passou.
+
+No seu `agentesRepository.js`, a função `findAll` tem:
+
+```js
+if (filters?.sort) {
+  agentsList.sort((a, b) => {
+    if (filters.sort === "dataDeIncorporacao") {
+      return new Date(a.dataDeIncorporacao).getTime() - new Date(b.dataDeIncorporacao).getTime();
+    } else if (filters.sort === "-dataDeIncorporacao") {
+      return new Date(b.dataDeIncorporacao).getTime() - new Date(a.dataDeIncorporacao).getTime();
+    }
+    return 0;
+  });
+}
+```
+
+Isso está correto e eficiente.
+
+No controller, você valida o filtro `sort` com:
+
+```js
+const sortFilter = zod.enum(["dataDeIncorporacao", "-dataDeIncorporacao"]);
+```
+
+E no `agentesController.js`:
+
+```js
+if (filters.sort !== undefined) sortFilter.parse(filters.sort);
+```
+
+Tudo certo.
+
+**O que pode estar faltando?**
+
+- Talvez a rota `/agentes` não esteja aceitando o parâmetro `sort` na documentação Swagger, mas isso não afeta o funcionamento real da API.
+- Ou o teste espera que o filtro `cargo` e `sort` funcionem juntos, e talvez a lógica de filtro esteja sobrescrevendo os dados.
+
+Sugiro testar a combinação de filtros manualmente para garantir que o sort está funcionando junto com o filtro cargo.
+
+---
+
+### 6. Penalidades: não permitir alteração do ID no PUT/PATCH
+
+Como mencionei, o problema de permitir alteração do `id` dos agentes e casos é crítico.
+
+No seu controller, você já omite o campo `id` do schema para validação, o que está certo, mas no repository, no método `updateAgent` e `updateCase`, você faz:
+
+```js
+Object.assign(agent, updatedAgent);
+```
+
+Isso pode ser perigoso se `updatedAgent` tiver o campo `id`.
+
+**Sugestão para evitar isso:**
+
+Antes de aplicar o update, remova o campo `id` explicitamente do objeto de atualização:
+
+```js
+delete updatedAgent.id;
+Object.assign(agent, updatedAgent);
+```
+
+Ou, melhor ainda, no schema Zod, configure para que o campo `id` não seja aceito, e se vier, lance erro.
+
+---
+
+### 7. Organização e estrutura do projeto
+
+Sua estrutura de pastas e arquivos está bem alinhada com o esperado, com:
+
+- `routes/` contendo `agentesRoutes.js` e `casosRoutes.js`
+- `controllers/` com os controllers correspondentes
+- `repositories/` com os repositórios
+- `server.js` na raiz
+- Middleware de erro importado e usado no `server.js`
+
+Parabéns por isso! Isso mostra maturidade no projeto e facilita a manutenção.
+
+---
+
+## Recomendações de recursos para você avançar ainda mais:
+
+- Para entender melhor como manipular rotas e middlewares no Express.js, recomendo muito este vídeo:  
+  https://youtu.be/RSZHvQomeKE  
+  Ele vai te ajudar a consolidar a estrutura do seu projeto e o uso correto do Express.
+
+- Para aprofundar na validação de dados e tratamento de erros, veja este conteúdo sobre status 400 e 404:  
   https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400  
   https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404
 
-- **Rotas e organização com Express.js:**  
-  https://expressjs.com/pt-br/guide/routing.html
-
-- **Manipulação de arrays em JavaScript (filter, find, etc):**  
-  https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI
+- Para garantir que IDs não sejam alterados e para trabalhar melhor com schemas Zod, este vídeo é excelente:  
+  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
 
 ---
 
-## 8. Resumo Rápido do Que Você Pode Melhorar Agora 🚦
+## Resumo rápido para você focar:
 
-- Corrigir a lógica de verificação de IDs duplicados nas funções `createAgent` e `createCase` nos repositórios.  
-- Implementar tratamento de erros nos controllers para capturar exceções do `zod` e do repositório, retornando status HTTP apropriados (400, 404).  
-- Garantir que os IDs usados são UUIDs válidos, validando-os com `zod` antes de usar.  
-- Melhorar o tratamento dos filtros e ordenação, adicionando validação e mensagens de erro personalizadas para filtros inválidos.  
-- Ajustar o projeto para evitar misturar código transpilado e código fonte, mantendo a organização clara entre `.ts` e `.js` ou configurando o `"type"` no `package.json` corretamente.
-
----
-
-## 9. Para Finalizar: Você Está No Caminho Certo! 🚀
-
-jaoppb, você já tem uma base muito boa e está aplicando conceitos importantes como modularização, uso do `zod` para validação e uso de UUIDs. Com alguns ajustes no tratamento de erros e validações, sua API vai ficar muito robusta e confiável! Não desanime com os detalhes — são eles que fazem a diferença entre um código funcional e um código excelente.
-
-Continue praticando, revisando seu código com atenção e explorando os recursos que te passei. Você está construindo uma base sólida para projetos cada vez maiores e mais complexos!
-
-Qualquer dúvida, estou aqui para ajudar. Vamos juntos nessa! 💪✨
+- 🚫 Garanta que o middleware de erro trate corretamente os erros `NotFoundError` e `InvalidIDError`, retornando status 404 e 400, respectivamente.
+- 🔒 Evite que o campo `id` seja alterado nos métodos PUT e PATCH, bloqueando sua presença no payload e protegendo no repositório.
+- 🔍 Confirme que o endpoint `/casos/:id/agente` está registrado corretamente e que o erro de recurso não encontrado retorna 404.
+- 🔎 Verifique o tratamento do parâmetro obrigatório `q` na busca por texto em casos e retorne 400 se faltar.
+- ⚙️ Teste a combinação de filtros e ordenação para agentes para garantir que a ordenação por `dataDeIncorporacao` funcione corretamente.
+- 👍 Continue organizando seu projeto como está, mantendo a arquitetura modular clara e limpa.
 
 ---
 
-Um abraço de Code Buddy 🤖❤️  
-Até a próxima revisão!
+Você está no caminho certo, jaoppb! 🚀 Com esses ajustes, sua API vai ficar ainda mais robusta, confiável e alinhada com boas práticas. Continue se dedicando, revisando seu código com calma e testando cada cenário. Qualquer dúvida, estou aqui para ajudar! 😉
+
+Boa sorte e bons códigos! 💻✨
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
