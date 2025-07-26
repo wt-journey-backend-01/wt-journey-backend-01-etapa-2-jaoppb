@@ -5,6 +5,10 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -21,18 +25,16 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
-var import_express = __toESM(require("express"));
-var import_docsRouter = __toESM(require("./routes/docsRouter"));
-var import_agentesRoutes = __toESM(require("./routes/agentesRoutes"));
-var import_casosRoutes = __toESM(require("./routes/casosRoutes"));
-var import_utils = require("./utils");
-const app = (0, import_express.default)();
-const PORT = process.env.PORT || 3e3;
-app.use(import_express.default.json());
-app.use(import_docsRouter.default);
-app.use(import_agentesRoutes.default);
-app.use(import_casosRoutes.default);
-app.use(import_utils.errorHandler);
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var docsRouter_exports = {};
+__export(docsRouter_exports, {
+  default: () => docsRouter_default
 });
+module.exports = __toCommonJS(docsRouter_exports);
+var import_express = __toESM(require("express"));
+var import_swagger_ui_express = __toESM(require("swagger-ui-express"));
+var import_swagger = require("../swagger");
+const router = import_express.default.Router();
+router.use("/docs", import_swagger_ui_express.default.serve);
+router.get("/docs", import_swagger_ui_express.default.setup(import_swagger.swaggerDocument));
+var docsRouter_default = router;
