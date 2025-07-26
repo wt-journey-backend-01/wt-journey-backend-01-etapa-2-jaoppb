@@ -4,7 +4,17 @@ import CaseSchema from '../models/case';
 import { v4 as uuid } from 'uuid';
 
 function getAllCases(req: Request, res: Response) {
-	const cases = casesRepository.findAll();
+	const filters = req.query as { status?: string; agente_id?: string };
+
+	if (filters.status) {
+		CaseSchema.shape.status.parse(filters.status);
+	}
+
+	if (filters.agente_id) {
+		CaseSchema.shape.agente_id.parse(filters.agente_id);
+	}
+
+	const cases = casesRepository.findAll(filters);
 	res.json(cases);
 }
 

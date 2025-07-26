@@ -22,8 +22,20 @@ const cases: Case[] = [
 	},
 ];
 
-function findAll(): Case[] {
-	return cases;
+type caseFilters = {
+	status?: string;
+	agente_id?: string;
+};
+
+function findAll(filters?: caseFilters): Case[] {
+	let casesList = cases;
+	if (filters?.status) {
+		casesList = casesList.filter((c) => c.status === filters.status);
+	}
+	if (filters?.agente_id) {
+		casesList = casesList.filter((c) => c.agente_id === filters.agente_id);
+	}
+	return casesList;
 }
 
 function findById(id: string): Case {
