@@ -1,4 +1,6 @@
-const cases = [
+import { Case } from '../models/case';
+
+const cases: Case[] = [
 	{
 		id: 'f5fb2ad5-22a8-4cb4-90f2-8733517a0d46',
 		titulo: 'homicidio',
@@ -17,10 +19,17 @@ const cases = [
 	},
 ];
 
-function findAll() {
+function findAll(): Case[] {
 	return cases;
+}
+
+function findById(id: string): Case | null {
+	const foundCase = cases.find((c) => c.id === id);
+	if (foundCase === undefined) return null;
+	return foundCase;
 }
 
 export default {
 	findAll,
+	findById,
 };

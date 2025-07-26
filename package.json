@@ -23,7 +23,8 @@
 	},
 	"homepage": "https://github.com/wt-journey-backend-01/wt-journey-backend-01-etapa-2-jaoppb#readme",
 	"dependencies": {
-		"express": "^5.1.0"
+		"express": "^5.1.0",
+		"zod": "^4.0.10"
 	},
 	"devDependencies": {
 		"@types/express": "^5.0.3",
