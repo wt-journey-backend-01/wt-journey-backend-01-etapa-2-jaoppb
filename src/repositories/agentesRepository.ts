@@ -45,9 +45,16 @@ function updateAgent(agent: Agent, updatedAgent: Partial<Agent>): Agent {
 	return agent;
 }
 
+function deleteAgent(id: string): void {
+	const index = agents.findIndex((a) => a.id === id);
+	if (index === -1) throw new NotFoundError('Agent', id);
+	agents.splice(index, 1);
+}
+
 export default {
 	findAll,
 	findById,
 	createAgent,
 	updateAgent,
+	deleteAgent,
 };

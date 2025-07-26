@@ -43,10 +43,19 @@ function updateAgent(req: Request, res: Response) {
 	res.json(updatedAgent);
 }
 
+function deleteAgent(req: Request, res: Response) {
+	const agentId = req.params.id;
+	try {
+		agentRepository.deleteAgent(agentId);
+	} catch {}
+	res.status(204).send();
+}
+
 export default {
 	getAllAgents,
 	getAgentById,
 	createAgent,
 	overwriteAgent,
 	updateAgent,
+	deleteAgent,
 };

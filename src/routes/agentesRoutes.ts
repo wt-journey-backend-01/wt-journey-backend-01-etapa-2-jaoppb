@@ -8,5 +8,6 @@ router.get('/agentes/:id', agentsController.getAgentById);
 router.post('/agentes', agentsController.createAgent);
 router.put('/agentes/:id', agentsController.overwriteAgent);
 router.patch('/agentes/:id', agentsController.updateAgent);
+router.delete('/agentes/:id', agentsController.deleteAgent);
 
 export default router;
