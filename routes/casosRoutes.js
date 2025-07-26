@@ -53,6 +53,11 @@ const getAllApi = {
           name: "agente_id",
           in: "query",
           schema: import_agent.default.shape.id
+        },
+        {
+          name: "q",
+          in: "query",
+          schema: { type: "string" }
         }
       ],
       content: {
@@ -64,28 +69,6 @@ const getAllApi = {
   }
 };
 router.get("/casos", import_casosController.default.getAllCases);
-const searchApi = {
-  summary: "Search cases by text",
-  parameters: [
-    {
-      name: "q",
-      in: "query",
-      required: true,
-      schema: { type: "string" }
-    }
-  ],
-  responses: {
-    200: {
-      description: "List of cases matching the search text",
-      content: {
-        "application/json": {
-          schema: import_zod.default.array(import_case.default)
-        }
-      }
-    }
-  }
-};
-router.get("/casos/search", import_casosController.default.getAllCasesWithText);
 const getByIdApi = {
   summary: "Get a case by ID",
   parameters: [
@@ -245,9 +228,6 @@ const caseApi = {
   },
   "/casos/:id/agente": {
     get: getAgentByCaseIdApi
-  },
-  "/casos/search": {
-    get: searchApi
   }
 };
 var casosRoutes_default = router;

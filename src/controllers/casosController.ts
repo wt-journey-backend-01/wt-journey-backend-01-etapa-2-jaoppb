@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import casesRepository, { CaseFilters } from '../repositories/casosRepository';
 import CaseSchema from '../models/case';
 import agentsRepository from '../repositories/agentesRepository';
-import { RequiredParamError } from '../errors/requiredParam';
 import z from 'zod';
 import { InvalidIDError } from '../errors/invalidID';
 
@@ -15,15 +14,9 @@ function getAllCases(req: Request, res: Response) {
 	if (filters.agente_id !== undefined)
 		CaseSchema.shape.agente_id.parse(filters.agente_id);
 
+	if (filters.q !== undefined) z.string().min(3).parse(filters.q);
+
 	const cases = casesRepository.findAll(filters);
-	res.json(cases);
-}
-
-function getAllCasesWithText(req: Request, res: Response) {
-	const text = req.query.q as string | undefined;
-	if (!text) throw new RequiredParamError('q');
-
-	const cases = casesRepository.findAllWithText(text);
 	res.json(cases);
 }
 
@@ -90,7 +83,6 @@ function deleteCase(req: Request, res: Response) {
 
 export default {
 	getAllCases,
-	getAllCasesWithText,
 	getCaseById,
 	getAgentByCaseId,
 	createCase,

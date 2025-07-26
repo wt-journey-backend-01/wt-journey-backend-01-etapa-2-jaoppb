@@ -23,6 +23,11 @@ const getAllApi: ZodOpenApiOperationObject = {
 					in: 'query',
 					schema: AgentSchema.shape.id,
 				},
+				{
+					name: 'q',
+					in: 'query',
+					schema: { type: 'string' },
+				},
 			],
 			content: {
 				'application/json': {
@@ -33,29 +38,6 @@ const getAllApi: ZodOpenApiOperationObject = {
 	},
 };
 router.get('/casos', casesController.getAllCases);
-
-const searchApi: ZodOpenApiOperationObject = {
-	summary: 'Search cases by text',
-	parameters: [
-		{
-			name: 'q',
-			in: 'query',
-			required: true,
-			schema: { type: 'string' },
-		},
-	],
-	responses: {
-		200: {
-			description: 'List of cases matching the search text',
-			content: {
-				'application/json': {
-					schema: z.array(CaseSchema),
-				},
-			},
-		},
-	},
-};
-router.get('/casos/search', casesController.getAllCasesWithText);
 
 const getByIdApi: ZodOpenApiOperationObject = {
 	summary: 'Get a case by ID',
@@ -222,9 +204,6 @@ export const caseApi: ZodOpenApiPathsObject = {
 	},
 	'/casos/:id/agente': {
 		get: getAgentByCaseIdApi,
-	},
-	'/casos/search': {
-		get: searchApi,
 	},
 };
 

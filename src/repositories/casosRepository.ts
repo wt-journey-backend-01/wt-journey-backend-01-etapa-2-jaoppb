@@ -26,6 +26,7 @@ const cases: Case[] = [
 export type CaseFilters = {
 	status?: string;
 	agente_id?: string;
+	q?: string;
 };
 
 function findAll(filters?: CaseFilters): Case[] {
@@ -36,16 +37,15 @@ function findAll(filters?: CaseFilters): Case[] {
 	if (filters?.agente_id) {
 		casesList = casesList.filter((c) => c.agente_id === filters.agente_id);
 	}
+	if (filters?.q) {
+		const text = filters.q.toLowerCase().normalize();
+		casesList = casesList.filter(
+			(c) =>
+				c.titulo.toLowerCase().includes(text) ||
+				c.descricao.toLowerCase().includes(text),
+		);
+	}
 	return casesList;
-}
-
-function findAllWithText(text: string): Case[] {
-	const normalized = text.toLowerCase().normalize();
-	return cases.filter(
-		(c) =>
-			c.titulo.toLowerCase().normalize().includes(normalized) ||
-			c.descricao.toLowerCase().normalize().includes(normalized),
-	);
 }
 
 function findById(id: string): Case {
@@ -92,7 +92,6 @@ function deleteCase(id: string): void {
 
 export default {
 	findAll,
-	findAllWithText,
 	findById,
 	createCase,
 	updateCase,

@@ -34,7 +34,6 @@ module.exports = __toCommonJS(casosController_exports);
 var import_casosRepository = __toESM(require("../repositories/casosRepository"));
 var import_case = __toESM(require("../models/case"));
 var import_agentesRepository = __toESM(require("../repositories/agentesRepository"));
-var import_requiredParam = require("../errors/requiredParam");
 var import_zod = __toESM(require("zod"));
 var import_invalidID = require("../errors/invalidID");
 function getAllCases(req, res) {
@@ -43,13 +42,8 @@ function getAllCases(req, res) {
     import_case.default.shape.status.parse(filters.status);
   if (filters.agente_id !== void 0)
     import_case.default.shape.agente_id.parse(filters.agente_id);
+  if (filters.q !== void 0) import_zod.default.string().min(3).parse(filters.q);
   const cases = import_casosRepository.default.findAll(filters);
-  res.json(cases);
-}
-function getAllCasesWithText(req, res) {
-  const text = req.query.q;
-  if (!text) throw new import_requiredParam.RequiredParamError("q");
-  const cases = import_casosRepository.default.findAllWithText(text);
   res.json(cases);
 }
 function getAgentByCaseId(req, res) {
@@ -104,7 +98,6 @@ function deleteCase(req, res) {
 }
 var casosController_default = {
   getAllCases,
-  getAllCasesWithText,
   getCaseById,
   getAgentByCaseId,
   createCase,

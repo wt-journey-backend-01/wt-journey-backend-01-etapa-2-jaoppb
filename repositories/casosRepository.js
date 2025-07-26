@@ -59,13 +59,13 @@ function findAll(filters) {
   if (filters?.agente_id) {
     casesList = casesList.filter((c) => c.agente_id === filters.agente_id);
   }
+  if (filters?.q) {
+    const text = filters.q.toLowerCase().normalize();
+    casesList = casesList.filter(
+      (c) => c.titulo.toLowerCase().includes(text) || c.descricao.toLowerCase().includes(text)
+    );
+  }
   return casesList;
-}
-function findAllWithText(text) {
-  const normalized = text.toLowerCase().normalize();
-  return cases.filter(
-    (c) => c.titulo.toLowerCase().normalize().includes(normalized) || c.descricao.toLowerCase().normalize().includes(normalized)
-  );
 }
 function findById(id) {
   const foundCase = cases.find((c) => c.id === id);
@@ -101,7 +101,6 @@ function deleteCase(id) {
 }
 var casosRepository_default = {
   findAll,
-  findAllWithText,
   findById,
   createCase,
   updateCase,
