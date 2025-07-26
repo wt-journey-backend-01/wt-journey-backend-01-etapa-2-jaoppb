@@ -1,4 +1,7 @@
+import { DuplicateIDError } from '../errors/duplicateID';
+import { NotFoundError } from '../errors/notFound';
 import { Case } from '../models/case';
+import agentsRepository from './agentesRepository';
 
 const cases: Case[] = [
 	{
@@ -29,7 +32,21 @@ function findById(id: string): Case | null {
 	return foundCase;
 }
 
+function createCase(newCase: Case): Case {
+	if (findById(newCase.id)) {
+		throw new DuplicateIDError(newCase.id);
+	}
+
+	if (!agentsRepository.findById(newCase.agente_id)) {
+		throw new NotFoundError('Agent', newCase.agente_id);
+	}
+
+	cases.push(newCase);
+	return newCase;
+}
+
 export default {
 	findAll,
 	findById,
+	createCase,
 };
