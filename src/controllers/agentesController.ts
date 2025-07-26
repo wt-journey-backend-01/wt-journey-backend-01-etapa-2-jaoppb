@@ -30,9 +30,23 @@ function overwriteAgent(req: Request, res: Response) {
 	res.json(updatedAgent);
 }
 
+function updateAgent(req: Request, res: Response) {
+	const agentId = req.params.id;
+	const existingAgent = agentRepository.findById(agentId);
+	const updatedData = AgentSchema.omit({ id: true })
+		.partial()
+		.parse(req.body);
+	const updatedAgent = agentRepository.updateAgent(
+		existingAgent,
+		updatedData,
+	);
+	res.json(updatedAgent);
+}
+
 export default {
 	getAllAgents,
 	getAgentById,
 	createAgent,
 	overwriteAgent,
+	updateAgent,
 };
