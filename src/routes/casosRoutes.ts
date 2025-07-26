@@ -3,6 +3,7 @@ import casesController from '../controllers/casosController';
 import { ZodOpenApiOperationObject, ZodOpenApiPathsObject } from 'zod-openapi';
 import z from 'zod';
 import CaseSchema from '../models/case';
+import AgentSchema from '../models/agent';
 
 const router = express.Router();
 
@@ -46,6 +47,32 @@ const getByIdApi: ZodOpenApiOperationObject = {
 	},
 };
 router.get('/casos/:id', casesController.getCaseById);
+
+const getAgentByCaseIdApi: ZodOpenApiOperationObject = {
+	summary: 'Get agent by case ID',
+	parameters: [
+		{
+			name: 'id',
+			in: 'path',
+			required: true,
+			schema: { type: 'string', format: 'uuid' },
+		},
+	],
+	responses: {
+		200: {
+			description: 'Agent found',
+			content: {
+				'application/json': {
+					schema: AgentSchema,
+				},
+			},
+		},
+		404: {
+			description: 'Agent not found',
+		},
+	},
+};
+router.get('/casos/:id/agente', casesController.getAgentByCaseId);
 
 const postApi: ZodOpenApiOperationObject = {
 	summary: 'Create a new case',
@@ -157,6 +184,9 @@ export const caseApi: ZodOpenApiPathsObject = {
 		put: putApi,
 		patch: patchApi,
 		delete: deleteApi,
+	},
+	'/casos/:id/agente': {
+		get: getAgentByCaseIdApi,
 	},
 };
 

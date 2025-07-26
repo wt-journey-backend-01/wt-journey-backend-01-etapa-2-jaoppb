@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import casesRepository from '../repositories/casosRepository';
 import CaseSchema from '../models/case';
 import { v4 as uuid } from 'uuid';
+import agentsRepository from '../repositories/agentesRepository';
 
 function getAllCases(req: Request, res: Response) {
 	const filters = req.query as { status?: string; agente_id?: string };
@@ -16,6 +17,13 @@ function getAllCases(req: Request, res: Response) {
 
 	const cases = casesRepository.findAll(filters);
 	res.json(cases);
+}
+
+function getAgentByCaseId(req: Request, res: Response) {
+	const caseId = req.params.id;
+	const foundCase = casesRepository.findById(caseId);
+	const agent = agentsRepository.findById(foundCase.agente_id);
+	res.json(agent);
 }
 
 function getCaseById(req: Request, res: Response) {
@@ -61,6 +69,7 @@ function deleteCase(req: Request, res: Response) {
 export default {
 	getAllCases,
 	getCaseById,
+	getAgentByCaseId,
 	createCase,
 	overwriteCase,
 	updateCase,
