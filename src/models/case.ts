@@ -27,7 +27,7 @@ const CaseSchema = z
 		titulo,
 		descricao,
 		status,
-		agente_id: AgentSchema.shape.id,
+		agente_id: z.string(),
 	})
 	.meta({
 		id: 'Case',

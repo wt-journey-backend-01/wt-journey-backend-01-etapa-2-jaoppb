@@ -32,7 +32,6 @@ __export(case_exports, {
 });
 module.exports = __toCommonJS(case_exports);
 var import_zod = __toESM(require("zod"));
-var import_agent = __toESM(require("./agent"));
 const caseId = import_zod.default.uuidv4().meta({
   description: "Unique identifier for the case",
   example: "123e4567-e89b-12d3-a456-426614174000"
@@ -54,7 +53,7 @@ const CaseSchema = import_zod.default.object({
   titulo,
   descricao,
   status,
-  agente_id: import_agent.default.shape.id
+  agente_id: import_zod.default.string()
 }).meta({
   id: "Case",
   description: "Schema for a case in the system",
