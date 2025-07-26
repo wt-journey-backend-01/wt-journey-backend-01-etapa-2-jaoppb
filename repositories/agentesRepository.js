@@ -46,9 +46,9 @@ function findAll(filters) {
   }
   if (filters?.sort) {
     agentsList.sort((a, b) => {
-      if (filters.sort === "dataDeIncorporacao") {
+      if (filters.sort === "-dataDeIncorporacao") {
         return new Date(a.dataDeIncorporacao).getTime() - new Date(b.dataDeIncorporacao).getTime();
-      } else if (filters.sort === "-dataDeIncorporacao") {
+      } else if (filters.sort === "dataDeIncorporacao") {
         return new Date(b.dataDeIncorporacao).getTime() - new Date(a.dataDeIncorporacao).getTime();
       }
       return 0;
