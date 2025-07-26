@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import agentRepository from '../repositories/agentesRepository';
+import AgentSchema from '../models/agent';
 
 function getAllAgents(req: Request, res: Response) {
 	const agents = agentRepository.findAll();
@@ -12,7 +13,14 @@ function getAgentById(req: Request, res: Response) {
 	res.json(foundAgent);
 }
 
+function createAgent(req: Request, res: Response) {
+	const newAgent = AgentSchema.parse(req.body);
+	const createdAgent = agentRepository.createAgent(newAgent);
+	res.status(201).json(createdAgent);
+}
+
 export default {
 	getAllAgents,
 	getAgentById,
+	createAgent,
 };

@@ -1,3 +1,4 @@
+import { DuplicateIDError } from '../errors/duplicateID';
 import { NotFoundError } from '../errors/notFound';
 import { Agent } from '../models/agent';
 
@@ -26,7 +27,21 @@ function findById(id: string): Agent {
 	return foundAgent;
 }
 
+function createAgent(newAgent: Agent): Agent {
+	try {
+		findById(newAgent.id);
+	} catch (error) {
+		if (error instanceof NotFoundError)
+			throw new DuplicateIDError(newAgent.id);
+		else throw error;
+	}
+
+	agents.push(newAgent);
+	return newAgent;
+}
+
 export default {
 	findAll,
 	findById,
+	createAgent,
 };
