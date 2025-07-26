@@ -38,11 +38,11 @@ function errorHandler(err, req, res, next) {
       return res.status(409).json({
         message: err.message
       });
-    case err instanceof import_notFound.NotFoundError:
+    case (err instanceof import_notFound.NotFoundError || err instanceof import_invalidID.InvalidIDError):
       return res.status(404).json({
         message: err.message
       });
-    case (err instanceof import_requiredParam.RequiredParamError || err instanceof import_invalidID.InvalidIDError):
+    case err instanceof import_requiredParam.RequiredParamError:
       return res.status(400).json({
         message: err.message
       });

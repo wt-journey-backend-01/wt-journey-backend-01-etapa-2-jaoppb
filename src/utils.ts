@@ -23,11 +23,11 @@ export function errorHandler(
 			return res.status(409).json({
 				message: err.message,
 			});
-		case err instanceof NotFoundError:
+		case err instanceof NotFoundError || err instanceof InvalidIDError:
 			return res.status(404).json({
 				message: err.message,
 			});
-		case err instanceof RequiredParamError || err instanceof InvalidIDError:
+		case err instanceof RequiredParamError:
 			return res.status(400).json({
 				message: err.message,
 			});
