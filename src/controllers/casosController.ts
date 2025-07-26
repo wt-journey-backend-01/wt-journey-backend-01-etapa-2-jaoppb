@@ -36,10 +36,19 @@ function updateCase(req: Request, res: Response) {
 	res.json(updatedCase);
 }
 
+function deleteCase(req: Request, res: Response) {
+	const caseId = req.params.id;
+	try {
+		casesRepository.deleteCase(caseId);
+	} catch {}
+	res.status(204).send();
+}
+
 export default {
 	getAllCases,
 	getCaseById,
 	createCase,
 	overwriteCase,
 	updateCase,
+	deleteCase,
 };

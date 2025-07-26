@@ -54,9 +54,16 @@ function updateCase(case_: Case, updatedCase: Partial<Case>): Case {
 	return case_;
 }
 
+function deleteCase(id: string): void {
+	const index = cases.findIndex((c) => c.id === id);
+	if (index === -1) throw new NotFoundError('Case', id);
+	cases.splice(index, 1);
+}
+
 export default {
 	findAll,
 	findById,
 	createCase,
 	updateCase,
+	deleteCase,
 };
