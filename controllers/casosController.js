@@ -33,7 +33,6 @@ __export(casosController_exports, {
 module.exports = __toCommonJS(casosController_exports);
 var import_casosRepository = __toESM(require("../repositories/casosRepository"));
 var import_case = __toESM(require("../models/case"));
-var import_uuid = require("uuid");
 var import_agentesRepository = __toESM(require("../repositories/agentesRepository"));
 var import_requiredParam = require("../errors/requiredParam");
 function getAllCases(req, res) {
@@ -65,10 +64,7 @@ function getCaseById(req, res) {
   res.json(foundCase);
 }
 function createCase(req, res) {
-  const newCase = {
-    ...import_case.default.omit({ id: true }).parse(req.body),
-    id: (0, import_uuid.v4)()
-  };
+  const newCase = import_case.default.omit({ id: true }).parse(req.body);
   const createdCase = import_casosRepository.default.createCase(newCase);
   res.status(201).json(createdCase);
 }

@@ -35,7 +35,6 @@ module.exports = __toCommonJS(agentesController_exports);
 var import_agentesRepository = __toESM(require("../repositories/agentesRepository"));
 var import_agent = __toESM(require("../models/agent"));
 var import_zod = __toESM(require("zod"));
-var import_uuid = require("uuid");
 const sortFilter = import_zod.default.enum(["dataDeIncorporacao", "-dataDeIncorporacao"]);
 function getAllAgents(req, res) {
   const filters = req.query;
@@ -54,10 +53,7 @@ function getAgentById(req, res) {
   res.json(foundAgent);
 }
 function createAgent(req, res) {
-  const newAgent = {
-    ...import_agent.default.omit({ id: true }).parse(req.body),
-    id: (0, import_uuid.v4)()
-  };
+  const newAgent = import_agent.default.omit({ id: true }).parse(req.body);
   const createdAgent = import_agentesRepository.default.createAgent(newAgent);
   res.status(201).json(createdAgent);
 }

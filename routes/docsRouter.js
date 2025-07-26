@@ -33,7 +33,7 @@ __export(docsRouter_exports, {
 module.exports = __toCommonJS(docsRouter_exports);
 var import_express = __toESM(require("express"));
 var import_swagger_ui_express = __toESM(require("swagger-ui-express"));
-var import_swagger = require("../swagger");
+var import_swagger = require("../docs/swagger");
 const router = import_express.default.Router();
 router.use("/docs", import_swagger_ui_express.default.serve);
 router.get("/docs", import_swagger_ui_express.default.setup(import_swagger.swaggerDocument));

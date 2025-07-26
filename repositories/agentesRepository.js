@@ -23,17 +23,18 @@ __export(agentesRepository_exports, {
 module.exports = __toCommonJS(agentesRepository_exports);
 var import_duplicateID = require("../errors/duplicateID");
 var import_notFound = require("../errors/notFound");
+var import_uuid = require("uuid");
 const agents = [
   {
-    id: "401bccf5-cf9e-489d-8412-446cd169a0f1",
+    id: (0, import_uuid.v4)(),
     nome: "Rommel Carneiro",
-    dataDeIncorporacao: "1992/10/04",
+    dataDeIncorporacao: "1992-10-04",
     cargo: "Investigador"
   },
   {
-    id: "501bccf5-cf9e-489d-8412-446cd169a0f1",
+    id: (0, import_uuid.v4)(),
     nome: "Ana Paula Silva",
-    dataDeIncorporacao: "1995/05/15",
+    dataDeIncorporacao: "1995-05-15",
     cargo: "Delegado"
   }
 ];
@@ -60,15 +61,19 @@ function findById(id) {
   return foundAgent;
 }
 function createAgent(newAgent) {
+  const agentWithId = {
+    ...newAgent,
+    id: (0, import_uuid.v4)()
+  };
   try {
-    findById(newAgent.id);
+    findById(agentWithId.id);
   } catch (error) {
     if (error instanceof import_notFound.NotFoundError)
-      throw new import_duplicateID.DuplicateIDError(newAgent.id);
+      throw new import_duplicateID.DuplicateIDError(agentWithId.id);
     else throw error;
   }
-  agents.push(newAgent);
-  return newAgent;
+  agents.push(agentWithId);
+  return agentWithId;
 }
 function updateAgent(agent, updatedAgent) {
   Object.assign(agent, updatedAgent);

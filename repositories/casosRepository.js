@@ -34,20 +34,21 @@ module.exports = __toCommonJS(casosRepository_exports);
 var import_duplicateID = require("../errors/duplicateID");
 var import_notFound = require("../errors/notFound");
 var import_agentesRepository = __toESM(require("./agentesRepository"));
+var import_uuid = require("uuid");
 const cases = [
   {
-    id: "f5fb2ad5-22a8-4cb4-90f2-8733517a0d46",
+    id: (0, import_uuid.v4)(),
     titulo: "homicidio",
     descricao: "Disparos foram reportados \xE0s 22:33 do dia 10/07/2007 na regi\xE3o do bairro Uni\xE3o, resultando na morte da v\xEDtima, um homem de 45 anos.",
     status: "aberto",
-    agente_id: "401bccf5-cf9e-489d-8412-446cd169a0f1"
+    agente_id: import_agentesRepository.default.findAll()[0].id
   },
   {
-    id: "a2b3c4d5-e6f7-8a9b-0c1d-2e3f4g5h6i7j",
+    id: (0, import_uuid.v4)(),
     titulo: "furto",
     descricao: "Relato de furto de ve\xEDculo \xE0s 14:20 do dia 12/07/2007 na regi\xE3o do bairro Centro.",
     status: "solucionado",
-    agente_id: "401bccf5-cf9e-489d-8412-446cd169a0f1"
+    agente_id: import_agentesRepository.default.findAll()[1].id
   }
 ];
 function findAll(filters) {
@@ -72,16 +73,20 @@ function findById(id) {
   return foundCase;
 }
 function createCase(newCase) {
+  const caseWithId = {
+    ...newCase,
+    id: (0, import_uuid.v4)()
+  };
   try {
-    findById(newCase.id);
+    findById(caseWithId.id);
   } catch (error) {
     if (error instanceof import_notFound.NotFoundError)
-      throw new import_duplicateID.DuplicateIDError(newCase.id);
+      throw new import_duplicateID.DuplicateIDError(caseWithId.id);
     else throw error;
   }
-  import_agentesRepository.default.findById(newCase.agente_id);
-  cases.push(newCase);
-  return newCase;
+  import_agentesRepository.default.findById(caseWithId.agente_id);
+  cases.push(caseWithId);
+  return caseWithId;
 }
 function updateCase(case_, updatedCase) {
   if (updatedCase.agente_id) {
