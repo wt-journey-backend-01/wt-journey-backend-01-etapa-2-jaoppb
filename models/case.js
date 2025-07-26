@@ -65,5 +65,5 @@ const CaseSchema = import_zod.default.object({
     status: "aberto",
     agente_id: "123e4567-e89b-12d3-a456-426614174000"
   }
-});
+}).strict();
 var case_default = CaseSchema;

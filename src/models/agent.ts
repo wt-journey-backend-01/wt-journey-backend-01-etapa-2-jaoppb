@@ -41,7 +41,8 @@ const AgentSchema = z
 			dataDeIncorporacao: '2023-01-01',
 			cargo: 'Sales Manager',
 		},
-	});
+	})
+	.strict();
 
 export default AgentSchema;
 export type Agent = z.infer<typeof AgentSchema>;

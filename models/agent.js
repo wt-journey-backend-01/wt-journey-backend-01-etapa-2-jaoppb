@@ -64,5 +64,5 @@ const AgentSchema = import_zod.default.object({
     dataDeIncorporacao: "2023-01-01",
     cargo: "Sales Manager"
   }
-});
+}).strict();
 var agent_default = AgentSchema;
