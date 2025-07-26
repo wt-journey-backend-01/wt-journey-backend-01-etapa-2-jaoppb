@@ -1,4 +1,6 @@
-const agents = [
+import { Agent } from '../models/agent';
+
+const agents: Agent[] = [
 	{
 		id: '401bccf5-cf9e-489d-8412-446cd169a0f1',
 		nome: 'Rommel Carneiro',
@@ -13,10 +15,17 @@ const agents = [
 	},
 ];
 
-function findAll() {
+function findAll(): Agent[] {
 	return agents;
+}
+
+function findById(id: string): Agent | null {
+	const foundAgent = agents.find((a) => a.id === id);
+	if (foundAgent === undefined) return null;
+	return foundAgent;
 }
 
 export default {
 	findAll,
+	findById,
 };
