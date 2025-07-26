@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import casesRepository from '../repositories/casosRepository';
 import CaseSchema from '../models/case';
+import { v4 as uuid } from 'uuid';
 
 function getAllCases(req: Request, res: Response) {
 	const cases = casesRepository.findAll();
@@ -14,7 +15,10 @@ function getCaseById(req: Request, res: Response) {
 }
 
 function createCase(req: Request, res: Response) {
-	const newCase = CaseSchema.parse(req.body);
+	const newCase = {
+		...CaseSchema.omit({ id: true }).parse(req.body),
+		id: uuid(),
+	};
 
 	const createdCase = casesRepository.createCase(newCase);
 	res.status(201).json(createdCase);

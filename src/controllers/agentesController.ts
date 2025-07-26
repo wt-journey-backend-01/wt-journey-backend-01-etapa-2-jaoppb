@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import agentRepository from '../repositories/agentesRepository';
 import AgentSchema from '../models/agent';
+import { v4 as uuid } from 'uuid';
 
 function getAllAgents(req: Request, res: Response) {
 	const agents = agentRepository.findAll();
@@ -14,7 +15,10 @@ function getAgentById(req: Request, res: Response) {
 }
 
 function createAgent(req: Request, res: Response) {
-	const newAgent = AgentSchema.parse(req.body);
+	const newAgent = {
+		...AgentSchema.omit({ id: true }).parse(req.body),
+		id: uuid(),
+	};
 	const createdAgent = agentRepository.createAgent(newAgent);
 	res.status(201).json(createdAgent);
 }
