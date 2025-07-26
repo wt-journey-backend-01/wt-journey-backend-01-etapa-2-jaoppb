@@ -27,13 +27,22 @@ var import_notFound = require("./errors/notFound");
 var import_requiredParam = require("./errors/requiredParam");
 var import_invalidID = require("./errors/invalidID");
 var import_futureDate = require("./errors/futureDate");
+function handleZodIssue(issue) {
+  return {
+    [issue.path.join(".")]: {
+      message: issue.message,
+      code: issue.code,
+      input: issue.input
+    }
+  };
+}
 function errorHandler(err, req, res, next) {
   console.error(err.stack);
   switch (true) {
     case err instanceof import_zod.ZodError:
       return res.status(400).json({
-        message: "Validation error",
-        errors: err.issues
+        message: "Par\xE2metros inv\xE1lidos",
+        errors: err.issues.map(handleZodIssue)
       });
     case err instanceof import_duplicateID.DuplicateIDError:
       return res.status(409).json({

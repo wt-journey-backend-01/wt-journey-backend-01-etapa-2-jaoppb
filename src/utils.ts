@@ -5,6 +5,17 @@ import { NotFoundError } from './errors/notFound';
 import { RequiredParamError } from './errors/requiredParam';
 import { InvalidIDError } from './errors/invalidID';
 import { FutureDateError } from './errors/futureDate';
+import { $ZodIssue } from 'zod/v4/core';
+
+function handleZodIssue(issue: $ZodIssue) {
+	return {
+		[issue.path.join('.')]: {
+			message: issue.message,
+			code: issue.code,
+			input: issue.input,
+		},
+	};
+}
 
 export function errorHandler(
 	err: Error,
@@ -17,8 +28,8 @@ export function errorHandler(
 	switch (true) {
 		case err instanceof ZodError:
 			return res.status(400).json({
-				message: 'Validation error',
-				errors: err.issues,
+				message: 'Parâmetros inválidos',
+				errors: err.issues.map(handleZodIssue),
 			});
 		case err instanceof DuplicateIDError:
 			return res.status(409).json({
