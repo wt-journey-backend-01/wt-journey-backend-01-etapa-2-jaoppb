@@ -6,8 +6,8 @@
 	"scripts": {
 		"start": "node server.js",
 		"build": "esbuild --platform=node \"src/**/*.ts\" --outdir=. --format=cjs",
-		"build:watch": "esbuild --platform=node \"src/**/*.ts\" --outdir=. --watch",
-		"start:dev": "nodemon --watch dist --exec 'node dist/server.js'"
+		"build:watch": "esbuild --platform=node \"src/**/*.ts\" --outdir=. --watch --format=cjs",
+		"start:dev": "nodemon --watch . --exec 'npm run start'"
 	},
 	"repository": {
 		"type": "git",
