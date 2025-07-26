@@ -1,3 +1,4 @@
+import { NotFoundError } from '../errors/notFound';
 import { Agent } from '../models/agent';
 
 const agents: Agent[] = [
@@ -19,9 +20,9 @@ function findAll(): Agent[] {
 	return agents;
 }
 
-function findById(id: string): Agent | null {
+function findById(id: string): Agent {
 	const foundAgent = agents.find((a) => a.id === id);
-	if (foundAgent === undefined) return null;
+	if (foundAgent === undefined) throw new NotFoundError('Agent', id);
 	return foundAgent;
 }
 

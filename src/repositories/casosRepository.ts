@@ -26,9 +26,9 @@ function findAll(): Case[] {
 	return cases;
 }
 
-function findById(id: string): Case | null {
+function findById(id: string): Case {
 	const foundCase = cases.find((c) => c.id === id);
-	if (foundCase === undefined) return null;
+	if (foundCase === undefined) throw new NotFoundError('Case', id);
 	return foundCase;
 }
 
@@ -37,9 +37,8 @@ function createCase(newCase: Case): Case {
 		throw new DuplicateIDError(newCase.id);
 	}
 
-	if (!agentsRepository.findById(newCase.agente_id)) {
-		throw new NotFoundError('Agent', newCase.agente_id);
-	}
+	// Throw an error if the agent does not exist
+	agentsRepository.findById(newCase.agente_id);
 
 	cases.push(newCase);
 	return newCase;
