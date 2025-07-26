@@ -30,10 +30,7 @@ function getAgentById(req: Request, res: Response) {
 }
 
 function createAgent(req: Request, res: Response) {
-	const newAgent = {
-		...AgentSchema.omit({ id: true }).parse(req.body),
-		id: uuid(),
-	};
+	const newAgent = AgentSchema.omit({ id: true }).parse(req.body);
 	const createdAgent = agentRepository.createAgent(newAgent);
 	res.status(201).json(createdAgent);
 }

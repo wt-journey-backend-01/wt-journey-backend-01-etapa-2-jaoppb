@@ -1,16 +1,17 @@
 import { DuplicateIDError } from '../errors/duplicateID';
 import { NotFoundError } from '../errors/notFound';
 import { Agent } from '../models/agent';
+import { v4 as uuid } from 'uuid';
 
 const agents: Agent[] = [
 	{
-		id: '401bccf5-cf9e-489d-8412-446cd169a0f1',
+		id: uuid(),
 		nome: 'Rommel Carneiro',
 		dataDeIncorporacao: '1992/10/04',
 		cargo: 'Investigador',
 	},
 	{
-		id: '501bccf5-cf9e-489d-8412-446cd169a0f1',
+		id: uuid(),
 		nome: 'Ana Paula Silva',
 		dataDeIncorporacao: '1995/05/15',
 		cargo: 'Delegado',
@@ -52,17 +53,22 @@ function findById(id: string): Agent {
 	return foundAgent;
 }
 
-function createAgent(newAgent: Agent): Agent {
+function createAgent(newAgent: Omit<Agent, 'id'>): Agent {
+	const agentWithId: Agent = {
+		...newAgent,
+		id: uuid(),
+	};
+
 	try {
-		findById(newAgent.id);
+		findById(agentWithId.id);
 	} catch (error) {
 		if (error instanceof NotFoundError)
-			throw new DuplicateIDError(newAgent.id);
+			throw new DuplicateIDError(agentWithId.id);
 		else throw error;
 	}
 
-	agents.push(newAgent);
-	return newAgent;
+	agents.push(agentWithId);
+	return agentWithId;
 }
 
 function updateAgent(agent: Agent, updatedAgent: Partial<Agent>): Agent {

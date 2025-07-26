@@ -42,11 +42,7 @@ function getCaseById(req: Request, res: Response) {
 }
 
 function createCase(req: Request, res: Response) {
-	const newCase = {
-		...CaseSchema.omit({ id: true }).parse(req.body),
-		id: uuid(),
-	};
-
+	const newCase = CaseSchema.omit({ id: true }).parse(req.body);
 	const createdCase = casesRepository.createCase(newCase);
 	res.status(201).json(createdCase);
 }
