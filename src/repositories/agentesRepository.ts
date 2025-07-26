@@ -1,4 +1,5 @@
 import { DuplicateIDError } from '../errors/duplicateID';
+import { FutureDateError } from '../errors/futureDate';
 import { NotFoundError } from '../errors/notFound';
 import { Agent } from '../models/agent';
 import { v4 as uuid } from 'uuid';
@@ -54,6 +55,11 @@ function findById(id: string): Agent {
 }
 
 function createAgent(newAgent: Omit<Agent, 'id'>): Agent {
+	const date = new Date(newAgent.dataDeIncorporacao);
+	if (date.getTime() > Date.now()) {
+		throw new FutureDateError(date);
+	}
+
 	const agentWithId: Agent = {
 		...newAgent,
 		id: uuid(),

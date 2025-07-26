@@ -12,9 +12,7 @@ const nome = z.string().min(2).max(100).meta({
 
 const dataDeIncorporacao = z
 	.string()
-	.regex(
-		/^([01]\d{3}|20[01]\d|202[0-5])-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/,
-	)
+	.regex(/^\d{4}-\d{2}-\d{2}$/)
 	.meta({
 		description: 'Incorporation date of the agent',
 		example: '2023-01-01',

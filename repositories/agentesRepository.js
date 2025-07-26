@@ -22,6 +22,7 @@ __export(agentesRepository_exports, {
 });
 module.exports = __toCommonJS(agentesRepository_exports);
 var import_duplicateID = require("../errors/duplicateID");
+var import_futureDate = require("../errors/futureDate");
 var import_notFound = require("../errors/notFound");
 var import_uuid = require("uuid");
 const agents = [
@@ -61,6 +62,10 @@ function findById(id) {
   return foundAgent;
 }
 function createAgent(newAgent) {
+  const date = new Date(newAgent.dataDeIncorporacao);
+  if (date.getTime() > Date.now()) {
+    throw new import_futureDate.FutureDateError(date);
+  }
   const agentWithId = {
     ...newAgent,
     id: (0, import_uuid.v4)()
